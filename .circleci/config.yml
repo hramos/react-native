@@ -571,11 +571,11 @@ workflows:
             - objc-ios
             - js-node-8
     
-      # If we are on a stable branch, deploy to `npm`
+      # If we are on a stable branch, wait for approval to deploy to `npm`
       - hold:
           type: approval
-      - deploy:
           filters: *filter-only-stable
+      - deploy:
           requires:
             - hold
       
