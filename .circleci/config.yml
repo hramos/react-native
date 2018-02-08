@@ -541,7 +541,7 @@ jobs:
 workflows:
   version: 2
 
-  build:
+  test:
     jobs:
 
       # Run lint and flow checks
@@ -569,15 +569,19 @@ workflows:
           filters: *filter-ignore-gh-pages
           requires:
             - objc-ios
-            - js-node-8
-    
-      # If we are on a stable branch, wait for approval to deploy to `npm`
-      - hold:
-          type: approval
-          filters: *filter-only-stable
-      - deploy:
-          requires:
-            - hold
+            - js-node-8  
       
       - analyze-pull-request:
           filters: *filter-ignore-master-stable
+
+  deploy:
+    jobs:
+      # If we are on a stable branch, wait for approval to deploy to `npm`
+      - hold:
+          filters: *filter-only-stable
+          type: approval
+      - deploy:
+          filters: *filter-only-stable
+          requires:
+            - hold
+
