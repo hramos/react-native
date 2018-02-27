@@ -563,6 +563,12 @@ jobs:
             fi
           when: always
 
+  analyze_issues:
+    <<: *js_defaults
+    steps:
+      - checkout
+      - run: echo "Running"
+
 # Workflows enables us to run multiple jobs in parallel
 workflows:
   version: 2
@@ -636,6 +642,17 @@ workflows:
       - publish_npm_package:
           requires:
             - approve_publish_npm_package
+
+  # Scheduled workflows
+  scheduled-workflow:
+    triggers:
+      - schedule:
+          cron: "0 1 * * *"
+          filters:
+            branches:
+              only: master
+    jobs:
+      - analyze_issues
 
   # These tests are flaky or are yet to be fixed. They are placed on their own 
   # workflow to avoid marking benign PRs as broken.
