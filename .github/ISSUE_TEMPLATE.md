@@ -1,6 +1,7 @@
 <!--
   We use GitHub Issues exclusively for tracking bugs in React Native.
-  Please follow this template when preparing your bug report.
+  Please make sure to follow this template when preparing your bug
+  report. Reports with insufficient information will be closed.
 -->
 
 (Describe your issue in detail.)
@@ -23,7 +24,6 @@
 
 <!--
   Please share a project that reproduces the issue. 
-  Ideally, create a new app using https://snack.expo.io/ and try to reproduce the issue in it.
-
-  This is a good guide to creating bug demos: https://stackoverflow.com/help/mcve
+  Ideally, create a new app using https://snack.expo.io/ and try to 
+  reproduce the issue in it.
 -->
