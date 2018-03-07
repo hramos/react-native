@@ -1,0 +1,3 @@
+coverage_service: coveralls
+xcodeproj: RNTester/RNTester.xcodeproj
+scheme: RNTester 
