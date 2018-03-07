@@ -72,12 +72,20 @@ rm temp.bundle
 curl 'http://localhost:8081/IntegrationTests/RCTRootViewIntegrationTestApp.bundle?platform=ios&dev=true' -o temp.bundle
 rm temp.bundle
 
+# Optionally collect coverage, i.e. only on tests that run on the master branch
+if [ "$2" = "coverage" ]; then
+  ENABLE_COVERAGE=YES
+else
+  ENABLE_COVERAGE=NO
+fi
+
 # Run tests
 xcodebuild \
   -project "RNTester/RNTester.xcodeproj" \
-  -scheme $SCHEME \
-  -sdk $SDK \
-  -destination "$DESTINATION" \
+  -scheme RNTester \
+  -sdk iphonesimulator \
+  -destination 'platform=iOS Simulator,name=iPhone X,OS=11.2' \
+  -enableCodeCoverage YES \
   build test \
   | xcpretty --report junit --output ~/react-native/reports/junit/objc-xcodebuild-results.xml
 

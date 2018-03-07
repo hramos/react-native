@@ -73,11 +73,6 @@ aliases:
       only:
         - /.*-stable/
 
-  - &filter-only-master
-    branches:
-      only:
-        - master
-
   - &filter-ignore-gh-pages
     branches:
       ignore: gh-pages
@@ -172,6 +167,12 @@ aliases:
     command: |
       yarn test --coverage --maxWorkers=2
       cat ./coverage/lcov.info | ./node_modules/.bin/coveralls
+
+  - &ios-coverage
+    name: Test coverage
+    command: |
+      ./scripts/objc-test-ios.sh test coverage
+      bundle exec slather     
 
   - &build-android-app
     name: Build Android App
@@ -557,6 +558,18 @@ jobs:
       - store_artifacts:
           path: ~/react-native/coverage/
 
+  ios_coverage:
+    <<: *macos_defaults
+    steps:
+      - attach_workspace:
+          at: ~/react-native
+
+      - run: xcrun instruments -w "iPhone 5s (11.1)" || true
+      - run: *ios-coverage
+
+      - store_artifacts:
+          path: ~/react-native/coverage/
+
 # Workflows enables us to run multiple jobs in parallel
 workflows:
   version: 2
@@ -625,6 +638,10 @@ workflows:
       - checkout_code:
           filters: *filter-only-master
       - js_coverage:
+          filters: *filter-only-master
+          requires:
+            - checkout_code
+      - ios_coverage:
           filters: *filter-only-master
           requires:
             - checkout_code
