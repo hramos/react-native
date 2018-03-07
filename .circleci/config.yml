@@ -270,6 +270,17 @@ jobs:
       - checkout
       - run: *setup-artifacts
 
+      - persist_to_workspace:
+          root: .
+          paths: .
+
+  # Set up a Node environment for downstream jobs
+  run_yarn:
+    <<: *js_defaults
+    steps:
+      - attach_workspace:
+          at: ~/react-native
+
       - restore-cache: *restore-yarn-cache
       - run: *yarn
       - save-cache: *save-yarn-cache
@@ -290,14 +301,17 @@ jobs:
       - run: *run-flow-checks
       - run: *run-license-checks
 
-      # Check that npm works as expected
-      - run: rm -rf ~/react-native/node_modules
-      - run: *install-node-dependencies
-
       - store_test_results:
           path: ~/react-native/reports/junit
-      - store_artifacts:
-          path: ~/react-native/yarn.lock
+
+  # Check that npm works as expected
+  check_npm:
+    <<: *js_defaults
+    steps:
+      - attach_workspace:
+          at: ~/react-native
+
+      - run: *install-node-dependencies
 
   # Runs JavaScript tests on Node 8
   test_javascript:
@@ -547,18 +561,22 @@ workflows:
       # Checkout repo and run Yarn
       - checkout_code:
           filters: *filter-ignore-gh-pages
-
+      - run_yarn:
+          requires:
+            - checkout_code
+            
       # Run lint, flow, and other checks
       - analyze:
-          filters: *filter-ignore-gh-pages
+          requires:
+            - run_yarn
+      - check_npm:
           requires:
             - checkout_code
 
       # Test JavaScript
       - test_javascript:
-          filters: *filter-ignore-gh-pages
           requires:
-            - checkout_code
+            - run_yarn
 
       # Test JavaScript using Node 6, the minimum supported version
       - test_javascript_node6_compatibility:
@@ -566,25 +584,21 @@ workflows:
 
       # Test Android
       - test_android:
-          filters: *filter-ignore-gh-pages
           requires:
-            - checkout_code
+            - run_yarn
 
       # Test iOS & tvOS
       - test_ios:
-          filters: *filter-ignore-gh-pages
           requires:
-            - checkout_code
+            - run_yarn
       - test_tvos:
-          filters: *filter-ignore-gh-pages
           requires:
-            - checkout_code
+            - run_yarn
 
       # End-to-end tests
       - test_ios_e2e:
-          filters: *filter-ignore-gh-pages
           requires:
-            - checkout_code
+            - run_yarn
 
   # Only runs on PRs
   analyze:
@@ -592,12 +606,14 @@ workflows:
       # Checkout repo and run Yarn
       - checkout_code:
           filters: *filter-ignore-master-stable
-          
+      - run_yarn:
+          requires:
+            - checkout_code
+
       # Run code checks
       - analyze_pr:            
-          filters: *filter-ignore-master-stable
           requires:            
-            - checkout_code
+            - run_yarn
 
   # Only runs on NN-stable branches
   deploy:
