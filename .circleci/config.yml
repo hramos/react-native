@@ -619,13 +619,15 @@ workflows:
           requires:            
             - checkout_code
 
-  # Only run on master
-  coverage:
+  # Jobs that we do not want to run on every commit, but should happen regularly
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters: *filter-only-master
     jobs:
-      - checkout_code:
-          filters: *filter-only-master
+      - checkout_code
       - js_coverage:
-          filters: *filter-only-master
           requires:
             - checkout_code
 
