@@ -156,7 +156,7 @@ aliases:
     name: Check license
     command: ./scripts/circleci/check_license.sh
     when: always
-    
+
   - &build-android-app
     name: Build Android App
     command: |
@@ -290,6 +290,10 @@ jobs:
       - run: *run-flow-checks
       - run: *run-license-checks
 
+      # Check that npm works as expected
+      - run: rm -rf ~/react-native/node_modules
+      - run: *install-node-dependencies
+
       - store_test_results:
           path: ~/react-native/reports/junit
       - store_artifacts:
@@ -321,6 +325,10 @@ jobs:
       - save-cache: *save-yarn-cache
 
       - run: *run-js-tests
+
+      # Check that npm works as expected
+      - run: rm -rf ~/react-native/node_modules
+      - run: *install-node-dependencies
 
       - store_test_results:
           path: ~/react-native/reports/junit
