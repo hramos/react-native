@@ -444,17 +444,14 @@ jobs:
   # Set up an Android environment for downstream jobs
   test_android:
     <<: *android_defaults
+    docker:
+      - image: hramos/android-base:latest
     steps:
       - attach_workspace:
           at: ~/react-native
 
       # Configure Android SDK and related dependencies
       - run: *configure-android-path
-      - run: *install-android-build-dependencies
-      - restore-cache: *restore-cache-android-packages
-      - run: *install-android-packages
-      - save-cache: *save-cache-android-packages
-
       - run: *validate-android-sdk
 
       # Starting emulator in advance as it takes some time to boot.      
@@ -462,18 +459,6 @@ jobs:
       - run: *launch-avd
 
       # Keep configuring Android dependencies while AVD boots up
-
-      # Install Android NDK
-      - run: *create-ndk-directory
-      - restore-cache: *restore-cache-ndk
-      - run: *install-ndk
-      - save-cache: *save-cache-ndk
-
-      # Fetch dependencies using BUCK
-      - restore-cache: *restore-cache-buck
-      - run: *install-buck
-      - save-cache: *save-cache-buck
-
       - run: *validate-android-test-env
 
       - run: buck fetch ReactAndroid/src/test/java/com/facebook/react/modules
@@ -488,7 +473,6 @@ jobs:
       - run: *compile-native-libs
 
       # Build JavaScript Bundle for instrumentation tests
-      - run: *install-node
       - run: *build-js-bundle
 
       # Wait for AVD to finish booting before running tests
