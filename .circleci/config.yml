@@ -459,6 +459,7 @@ jobs:
       - run: *launch-avd
 
       # Keep configuring Android dependencies while AVD boots up
+      - run: *install-buck
       # - run: *validate-android-test-env
 
       - run: buck fetch ReactAndroid/src/test/java/com/facebook/react/modules
