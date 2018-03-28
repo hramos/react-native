@@ -452,6 +452,9 @@ jobs:
 
       # Configure Android SDK and related dependencies
       - run: *configure-android-path
+      - restore-cache: *restore-cache-android-packages
+      - run: *install-android-packages
+      - save-cache: *save-cache-android-packages
       # - run: *validate-android-sdk
 
       # Starting emulator in advance as it takes some time to boot.      
@@ -459,7 +462,10 @@ jobs:
       - run: *launch-avd
 
       # Keep configuring Android dependencies while AVD boots up
+      - restore-cache: *restore-cache-buck
       - run: *install-buck
+      - save-cache: *save-cache-buck
+
       # - run: *validate-android-test-env
 
       - run: buck fetch ReactAndroid/src/test/java/com/facebook/react/modules
