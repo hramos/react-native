@@ -33,19 +33,6 @@ aliases:
       - /opt/android/sdk
     key: v1-android-sdkmanager-packages-api-27-alpha-{{ checksum "scripts/.tests.env" }}
 
-  - &restore-cache-gradle
-    keys:
-      - v1-gradle-{{ arch }}-{{ .Branch }}-{{ checksum "build.gradle" }}-{{ checksum "ReactAndroid/build.gradle" }}
-      # Fallback in case checksum fails
-      - v1-gradle-{{ arch }}-{{ .Branch }}-{{ checksum "build.gradle" }}-
-      - v1-gradle-{{ arch }}-{{ .Branch }}-
-      # Fallback in case this is a first-time run on a fork
-      - v1-gradle-{{ arch }}-master-
-  - &save-cache-gradle
-    paths:
-      - ~/.gradle
-    key: v1-gradle-{{ arch }}-{{ .Branch }}-{{ checksum "build.gradle" }}-{{ checksum "ReactAndroid/build.gradle" }}
-
   - &restore-cache-apt
     keys:
       - v1-apt-{{ .Branch }}-{{ checksum "scripts/circleci/apt-get-android-deps.sh" }}
@@ -58,20 +45,20 @@ aliases:
 
   - &restore-cache-ndk
     keys:
-      - v3-android-ndk-{{ arch }}-r10e-{{ checksum "scripts/android-setup.sh" }}
+      - v4-android-ndk-r10e
   - &save-cache-ndk
     paths:
       - /opt/ndk
-    key: v3-android-ndk-{{ arch }}-r10e-{{ checksum "scripts/android-setup.sh" }}
+    key: v4-android-ndk-r10e
 
   - &restore-cache-buck
     keys:
-      - v3-buck-{{ arch }}-v2018.02.16.01
+      - v4-buck-v2018.02.16.01
   - &save-cache-buck
     paths:
       - ~/buck
       - ~/okbuck
-    key: v3-buck-{{ arch }}-v2018.02.16.01
+    key: v4-buck-v2018.02.16.01
 
   - &restore-cache-watchman
     keys:
@@ -83,14 +70,15 @@ aliases:
 
   - &restore-cache-gradle-downloads
     keys:
-      - v1-gradle-{{ arch }}-{{ checksum "ReactAndroid/build.gradle" }}-{{ checksum "scripts/circleci/gradle_download_deps.sh" }}
-      - v1-gradle-{{ arch }}-
+      - v1-gradle-{{ checksum "ReactAndroid/build.gradle" }}-{{ checksum "scripts/circleci/gradle_download_deps.sh" }}
+      - v1-gradle-{{ checksum "ReactAndroid/build.gradle" }}-
+      - v1-gradle-
   - &save-cache-gradle-downloads
     paths:
       - ~/.gradle
       - ReactAndroid/build/downloads
       - ReactAndroid/build/third-party-ndk
-    key: v1-gradle-{{ arch }}-{{ checksum "ReactAndroid/build.gradle" }}-{{ checksum "scripts/circleci/gradle_download_deps.sh" }}
+    key: v1-gradle-{{ checksum "ReactAndroid/build.gradle" }}-{{ checksum "scripts/circleci/gradle_download_deps.sh" }}
 
   # Branch Filtering
   - &filter-only-master-stable
@@ -488,11 +476,9 @@ jobs:
       - run: *configure-android-path
       - restore-cache: *restore-cache-apt
       - run: *install-android-build-dependencies
-      - save-cache: *save-cache-apt
 
       - restore-cache: *restore-cache-android-packages
       - run: *install-android-packages
-      - save-cache: *save-cache-android-packages
 
       - run: *validate-android-sdk
 
@@ -506,12 +492,10 @@ jobs:
       - run: *create-ndk-directory
       - restore-cache: *restore-cache-ndk
       - run: *install-ndk
-      - save-cache: *save-cache-ndk
 
       # Fetch dependencies using BUCK
       - restore-cache: *restore-cache-buck
       - run: *install-buck
-      - save-cache: *save-cache-buck
 
       - run: *validate-android-test-env
 
@@ -523,7 +507,6 @@ jobs:
 
       - restore-cache: *restore-cache-gradle-downloads
       - run: *gradle-download-deps
-      - save-cache: *save-cache-gradle-downloads
 
       # Build and compile
       - run: *build-android-app
@@ -538,6 +521,13 @@ jobs:
       # Test Suite
       - run: *run-android-unit-tests
       - run: *run-android-instrumentation-tests
+
+      # Upload saved caches
+      - save-cache: *save-cache-apt
+      - save-cache: *save-cache-android-packages
+      - save-cache: *save-cache-ndk
+      - save-cache: *save-cache-buck
+      - save-cache: *save-cache-gradle-downloads
 
       # Collect Results
       - run: *collect-android-test-results
