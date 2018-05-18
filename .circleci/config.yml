@@ -497,6 +497,12 @@ jobs:
       - restore-cache: *restore-cache-buck
       - run: *install-buck
 
+      # Upload saved caches
+      - save-cache: *save-cache-apt
+      - save-cache: *save-cache-android-packages
+      - save-cache: *save-cache-ndk
+      - save-cache: *save-cache-buck
+
       - run: *validate-android-test-env
 
       - run: buck fetch ReactAndroid/src/test/java/com/facebook/react/modules
@@ -523,10 +529,6 @@ jobs:
       - run: *run-android-instrumentation-tests
 
       # Upload saved caches
-      - save-cache: *save-cache-apt
-      - save-cache: *save-cache-android-packages
-      - save-cache: *save-cache-ndk
-      - save-cache: *save-cache-buck
       - save-cache: *save-cache-gradle-downloads
 
       # Collect Results
