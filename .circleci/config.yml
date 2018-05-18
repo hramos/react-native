@@ -92,6 +92,14 @@ aliases:
       - ReactAndroid/build/third-party-ndk
     key: v1-gradle-{{ arch }}-{{ checksum "ReactAndroid/build.gradle" }}-{{ checksum "scripts/circleci/gradle_download_deps.sh" }}
 
+  - &restore-cache-homebrew
+    keys:
+      - v1-homebrew
+  - &save-cache-homebrew
+    paths:
+      - ~/Library/Caches/Homebrew
+    key: v1-homebrew
+
   # Branch Filtering
   - &filter-only-master-stable
     branches:
@@ -289,6 +297,13 @@ aliases:
     name: tvOS End-to-End Test Suite
     command: node ./scripts/run-ci-e2e-tests.js --tvos --js --retries 3;
 
+  - &collect-objc-test-results
+    name: Collect Test Results
+    command: |
+      sudo gem install trainer
+      trainer --path "~/react-native/reports/junit"
+    when: always
+
 defaults: &defaults
   working_directory: ~/react-native
 
@@ -376,10 +391,15 @@ jobs:
           at: ~/react-native
 
       - run: xcrun instruments -w "iPhone 5s (11.2)" || true
+
+      - restore-cache: *restore-cache-homebrew
       # See https://github.com/Homebrew/homebrew-core/issues/26358.
       - run: brew upgrade python > /dev/null
       - run: brew install watchman
+      - save-cache: *save-cache-homebrew
+
       - run: *run-objc-ios-tests
+      - run: *collect-objc-test-results
 
       - store_test_results:
           path: ~/react-native/reports/junit
@@ -392,10 +412,15 @@ jobs:
           at: ~/react-native
 
       - run: xcrun instruments -w "Apple TV 1080p (11.2)" || true
+
+      - restore-cache: *restore-cache-homebrew
       # See https://github.com/Homebrew/homebrew-core/issues/26358.
       - run: brew upgrade python > /dev/null
       - run: brew install watchman
+      - save-cache: *save-cache-homebrew
+
       - run: *run-objc-tvos-tests
+      - run: *collect-objc-test-results
 
       - store_test_results:
           path: ~/react-native/reports/junit

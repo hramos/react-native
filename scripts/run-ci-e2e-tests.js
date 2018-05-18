@@ -241,7 +241,7 @@ try {
       exitCode = 1;
       throw Error(exitCode);
     }
-    if (exec('yarn test').code) {
+    if (exec('yarn test-ci').code) {
       echo('Jest test failure');
       exitCode = 1;
       throw Error(exitCode);
