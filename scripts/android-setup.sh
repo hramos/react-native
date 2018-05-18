@@ -18,8 +18,13 @@ function getAndroidPackages {
     echo "Installing SDK build tools, revision $ANDROID_SDK_BUILD_TOOLS_REVISION..."
     sdkmanager "build-tools;$ANDROID_SDK_BUILD_TOOLS_REVISION"
     # These moved to "system-images;android-$ANDROID_SDK_BUILD_API_LEVEL;google_apis;x86" starting with API level 25, but there is no ARM version.
-    echo "Installing Google APIs $ANDROID_GOOGLE_API_LEVEL..."
-    sdkmanager "add-ons;addon-google_apis-google-$ANDROID_GOOGLE_API_LEVEL"
+    if [ $ANDROID_GOOGLE_API_LEVEL -lt 25]; then
+      echo "Installing Google APIs $ANDROID_GOOGLE_API_LEVEL..."
+      sdkmanager "add-ons;addon-google_apis-google-$ANDROID_GOOGLE_API_LEVEL"
+    else
+      echo "Installing Google APIs $ANDROID_GOOGLE_API_LEVEL x86..."
+      sdkmanager "system-images;android-$ANDROID_GOOGLE_API_LEVEL;google_apis;x86"
+    fi
     echo "Installing Android Support Repository"
     sdkmanager "extras;android;m2repository"
     $CI && touch $DEPS
