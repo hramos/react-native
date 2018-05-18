@@ -301,7 +301,7 @@ aliases:
     name: Collect Test Results
     command: |
       sudo gem install trainer
-      trainer --path "~/react-native/reports/junit"
+      trainer --path ~/react-native/reports/junit
     when: always
 
 defaults: &defaults
