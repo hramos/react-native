@@ -179,7 +179,7 @@ aliases:
   - &configure-android-path
     name: Configure Environment Variables
     command: |
-      echo 'export PATH=${ANDROID_NDK}:~/react-native/gradle-2.9/bin:~/buck/bin:$PATH' >> $BASH_ENV
+      echo 'export PATH=${ANDROID_SDK_HOME}/tools:${ANDROID_SDK_HOME}/tools/bin:${ANDROID_SDK_HOME}/platform-tools:${ANDROID_NDK}:~/react-native/gradle-2.9/bin:~/buck/bin:$PATH' >> $BASH_ENV
       source $BASH_ENV
 
   - &install-android-packages
@@ -320,7 +320,7 @@ android_defaults: &android_defaults
     - ADB_INSTALL_TIMEOUT: 10
     - _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
     - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+HeapDumpOnOutOfMemoryError"'
-    - ANDROID_HOME: '/opt/android/sdk'
+    - ANDROID_SDK_HOME: '/opt/android/sdk'
     - ANDROID_NDK: '/opt/android/ndk/android-ndk-r10e'
     - BUILD_THREADS: 2
 
@@ -492,9 +492,11 @@ jobs:
     docker:
       - image: reactnativeci/android-api-26-node8-alpha
     environment:
-      - PATH: "/opt/yarn/yarn-v1.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/android/sdk"
+      - PATH: "/opt/yarn/yarn-v1.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     steps:
       - checkout
+      - run: *configure-android-path
+
       - run: *setup-artifacts
 
       - restore-cache: *restore-yarn-cache
