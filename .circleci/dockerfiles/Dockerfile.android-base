@@ -75,3 +75,5 @@ RUN sudo mkdir -p ~/okbuck && \
   sudo mkdir -p ~/react-native/tooling/junit && \
   sudo chown -R circleci:circleci ~/react-native/tooling/junit && \
   cp -R ~/okbuck/tooling/junit/* ~/react-native/tooling/junit/.
+
+RUN sudo apt-get install -y ca-certificates

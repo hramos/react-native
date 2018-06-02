@@ -490,9 +490,18 @@ jobs:
     <<: *android_defaults
     docker:
       - image: reactnativeci/android-api-26-node8-alpha
+    environment:
+      - PATH: "/opt/yarn/yarn-v1.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     steps:
-      - attach_workspace:
-          at: ~/react-native
+      - checkout
+      - run: *setup-artifacts
+
+      - restore-cache: *restore-yarn-cache
+      - run: *yarn
+      - save-cache: *save-yarn-cache
+
+      # Basic checks against the checkout, cache...
+      - run: *run-sanity-checks
 
       # Starting emulator in advance as it takes some time to boot.
       - run: *create-avd
@@ -600,8 +609,6 @@ workflows:
       # Test Android
       - test_android:
           filters: *filter-ignore-gh-pages
-          requires:
-            - checkout_code
 
       # Test iOS & tvOS
       - test_ios:
