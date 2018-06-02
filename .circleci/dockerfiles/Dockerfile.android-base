@@ -71,9 +71,4 @@ RUN sudo mkdir -p ${BUCK_HOME} && \
 # Download Buck tooling
 RUN sudo mkdir -p ~/okbuck && \
   sudo chown -R circleci:circleci ~/okbuck && \
-  git clone https://github.com/uber/okbuck.git ~/okbuck --depth=1 && \
-  sudo mkdir -p ~/react-native/tooling/junit && \
-  sudo chown -R circleci:circleci ~/react-native/tooling/junit && \
-  cp -R ~/okbuck/tooling/junit/* ~/react-native/tooling/junit/.
-
-RUN sudo apt-get install -y ca-certificates
+  git clone https://github.com/uber/okbuck.git ~/okbuck --depth=1

@@ -268,6 +268,7 @@ aliases:
   - &collect-android-test-results
     name: Collect Test Results
     command: |
+      cp -R ~/okbuck/tooling/junit/* ~/react-native/tooling/junit/.
       find . -type f -regex ".*/build/test-results/debug/.*xml" -exec cp {} ~/react-native/reports/build/ \;
       find . -type f -regex ".*/outputs/androidTest-results/connected/.*xml" -exec cp {} ~/react-native/reports/outputs/ \;
       find . -type f -regex ".*/buck-out/gen/ReactAndroid/src/test/.*/.*xml" -exec cp {} ~/react-native/reports/buck/ \;
@@ -281,8 +282,7 @@ aliases:
       mkdir -p ~/react-native/reports/build/
       mkdir -p ~/react-native/reports/junit/
       mkdir -p ~/react-native/reports/outputs/
-      sudo chown -R circleci:circleci ~/react-native
-      sudo chown -R circleci:circleci ~/react-native/reports
+      mkdir -p ~/react-native/tooling/junit
 
   - &run-objc-ios-tests
     name: iOS Test Suite
