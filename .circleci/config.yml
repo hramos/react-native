@@ -179,7 +179,7 @@ aliases:
   - &configure-android-path
     name: Configure Environment Variables
     command: |
-      echo 'export PATH=/opt/buck/bin/:${ANDROID_SDK_HOME}/tools:${ANDROID_SDK_HOME}/tools/bin:${ANDROID_SDK_HOME}/platform-tools:${ANDROID_NDK}:~/react-native/gradle-2.9/bin:~/buck/bin:$PATH' >> $BASH_ENV
+      echo 'export PATH=/opt/buck/bin/:${ANDROID_SDK}/tools:${ANDROID_SDK}/tools/bin:${ANDROID_SDK}/platform-tools:${ANDROID_NDK}:~/react-native/gradle-2.9/bin:~/buck/bin:$PATH' >> $BASH_ENV
       source $BASH_ENV
 
   - &install-android-packages
@@ -320,7 +320,7 @@ android_defaults: &android_defaults
     - ADB_INSTALL_TIMEOUT: 10
     - _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
     - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+HeapDumpOnOutOfMemoryError"'
-    - ANDROID_SDK_HOME: '/opt/android/sdk'
+    - ANDROID_SDK: '/opt/android/sdk'
     - ANDROID_NDK: '/opt/android/ndk/android-ndk-r10e'
     - BUILD_THREADS: 2
 
@@ -672,10 +672,6 @@ workflows:
   #         requires:
   #           - checkout_code
 
-experimental:
-  notify:
-    webhooks:
-      - url: https://code.facebook.com/circle/webhook/
-    branches:
-      only:
-        - master
+notify:
+  webhooks:
+    - url: https://code.facebook.com/circle/webhook/
