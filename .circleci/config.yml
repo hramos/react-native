@@ -320,7 +320,8 @@ android_defaults: &android_defaults
     - ADB_INSTALL_TIMEOUT: 10
     - _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
     - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+HeapDumpOnOutOfMemoryError"'
-    - ANDROID_NDK: '/opt/ndk/android-ndk-r10e'
+    - ANDROID_HOME: '/opt/android/sdk'
+    - ANDROID_NDK: '/opt/android/ndk/android-ndk-r10e'
     - BUILD_THREADS: 2
 
 macos_defaults: &macos_defaults
@@ -491,7 +492,7 @@ jobs:
     docker:
       - image: reactnativeci/android-api-26-node8-alpha
     environment:
-      - PATH: "/opt/yarn/yarn-v1.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - PATH: "/opt/yarn/yarn-v1.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/android/sdk"
     steps:
       - checkout
       - run: *setup-artifacts
