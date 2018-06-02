@@ -492,7 +492,7 @@ jobs:
     docker:
       - image: reactnativeci/android-api-26-node8-alpha
     environment:
-      - PATH: "/opt/yarn/yarn-v1.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      - PATH: "/opt/yarn/yarn-v1.5.1/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/buck/bin/:/opt/android/sdk/tools:/opt/android/sdk/tools/bin:/opt/android/sdk/platform-tools:/opt/android/ndk/android-ndk-r10e:~/react-native/gradle-2.9/bin:~/buck/bin"
     steps:
       - checkout
       - run: *configure-android-path
