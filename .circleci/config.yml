@@ -281,6 +281,8 @@ aliases:
       mkdir -p ~/react-native/reports/build/
       mkdir -p ~/react-native/reports/junit/
       mkdir -p ~/react-native/reports/outputs/
+      sudo chown -R circleci:circleci ~/react-native
+      sudo chown -R circleci:circleci ~/react-native/reports
 
   - &run-objc-ios-tests
     name: iOS Test Suite
