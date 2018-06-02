@@ -1,0 +1,77 @@
+# React Native Base Android Development Environment
+#
+# This image provides a base Android development environment for React Native,
+# including, but not limited to, the Android SDK, Android NDK, Node, and BUCK.
+# These are required in order to run React Native's Android unit and integration
+# tests.
+#
+# This image is not currently built automatically as part of React Native's CI
+# infrastructure. It should not be necessary to rebuild this image while the
+# Android dependencies (Android SDK version, build tools version, etc) remain
+# equal. The operations performed to build this image are those that tend to
+# remain stable across commits in any given React Native release.
+
+FROM circleci/android:api-26-node8-alpha
+
+LABEL Description="This image provides a base Android development environment for React Native, and may be used to run tests."
+LABEL maintainer="Héctor Ramos <hector@fb.com>"
+
+# set default build arguments
+ARG ANDROID_BUILD_VERSION=23
+ARG ANDROID_TARGET_VERSION=19
+ARG ANDROID_SDK_BUILD_TOOLS_REVISION=23.0.1
+ARG ANDROID_GOOGLE_API_LEVEL=23
+ARG AVD_ABI=armeabi-v7a
+ARG AVD_NAME=testAVD
+
+ARG BUCK_VERSION=v2018.03.26.01
+
+ARG NDK_VERSION=10e
+ARG NODE_VERSION=8.10.0
+ARG WATCHMAN_VERSION=4.9.0
+
+# set default environment variables
+ENV ADB_INSTALL_TIMEOUT=10
+ENV BUCK_HOME=/opt/buck
+ENV PATH=${PATH}:${BUCK_HOME}/bin/
+ENV ANDROID_HOME=/opt/android
+ENV ANDROID_SDK_HOME=${ANDROID_HOME}/sdk
+ENV ANDROID_NDK_HOME=${ANDROID_HOME}/ndk
+ENV PATH=${PATH}:${ANDROID_SDK_HOME}/tools:${ANDROID_SDK_HOME}/tools/bin:${ANDROID_SDK_HOME}/platform-tools
+ENV ANDROID_NDK=${ANDROID_NDK_HOME}/android-ndk-r$NDK_VERSION
+
+ENV PATH=${ANDROID_NDK}:~/react-native/gradle-2.9/bin:~/buck/bin:${PATH}
+
+# install system dependencies
+RUN sudo apt-get update && sudo apt-get install ant autoconf automake g++ gcc libqt5widgets5 lib32z1 lib32stdc++6 make maven python-dev python3-dev qml-module-qtquick-controls qtdeclarative5-dev file curl unzip -y
+
+# Add android SDK tools
+RUN sdkmanager \
+  "system-images;android-$ANDROID_TARGET_VERSION;google_apis;$AVD_ABI" \
+  "platforms;android-$ANDROID_TARGET_VERSION" \
+  "platforms;android-$ANDROID_BUILD_VERSION" \
+  "build-tools;$ANDROID_SDK_BUILD_TOOLS_REVISION" \
+  "add-ons;addon-google_apis-google-$ANDROID_GOOGLE_API_LEVEL" \
+  "extras;android;m2repository"
+
+# Download and unpack Android NDK
+RUN sudo mkdir -p ${ANDROID_NDK_HOME} && \
+  sudo chown -R circleci:circleci ${ANDROID_NDK_HOME} && \
+  curl --silent --show-error --location --fail --retry 3 --output /tmp/${NDK_VERSION} https://dl.google.com/android/repository/android-ndk-r$NDK_VERSION-linux-x86_64.zip && \
+  unzip -q /tmp/${NDK_VERSION} -d ${ANDROID_NDK_HOME} && \
+  rm /tmp/${NDK_VERSION}
+
+# Download and install Buck
+RUN sudo mkdir -p ${BUCK_HOME} && \
+  sudo chown -R circleci:circleci ${BUCK_HOME} && \
+  git clone https://github.com/facebook/buck.git ${BUCK_HOME} --branch $BUCK_VERSION --depth=1 && \
+  cd ${BUCK_HOME} && \
+  ant
+
+# Download Buck tooling
+RUN sudo mkdir -p ~/okbuck && \
+  sudo chown -R circleci:circleci ~/okbuck && \
+  git clone https://github.com/uber/okbuck.git ~/okbuck --depth=1 && \
+  sudo mkdir -p ~/react-native/tooling/junit && \
+  sudo chown -R circleci:circleci ~/react-native/tooling/junit && \
+  cp -R ~/okbuck/tooling/junit/* ~/react-native/tooling/junit/.
