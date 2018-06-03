@@ -319,7 +319,7 @@ android_defaults: &android_defaults
     - TERM: "dumb"
     - ADB_INSTALL_TIMEOUT: 10
     - _JAVA_OPTIONS: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
-    - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-XX:+HeapDumpOnOutOfMemoryError"'
+    - GRADLE_OPTS: '-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx512m -XX:+HeapDumpOnOutOfMemoryError"'
     - ANDROID_HOME: '/opt/android/sdk'
     - ANDROID_SDK: '/opt/android/sdk'
     - ANDROID_NDK: '/opt/android/ndk/android-ndk-r10e'
