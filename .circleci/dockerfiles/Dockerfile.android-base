@@ -34,9 +34,9 @@ ARG WATCHMAN_VERSION=4.9.0
 ENV ADB_INSTALL_TIMEOUT=10
 ENV BUCK_HOME=/opt/buck
 ENV ANDROID_SDK=/opt/android/sdk
-ENV ANDROID_NDK=/opt/android/ndk
+ENV ANDROID_NDK_HOME=/opt/android/ndk
 ENV PATH=${PATH}:${ANDROID_SDK}/tools:${ANDROID_SDK}/tools/bin:${ANDROID_SDK}/platform-tools
-ENV ANDROID_NDK=${ANDROID_NDK}/android-ndk-r$NDK_VERSION
+ENV ANDROID_NDK=${ANDROID_NDK_HOME}/android-ndk-r$NDK_VERSION
 
 ENV PATH=${ANDROID_NDK}:~/react-native/gradle-2.9/bin:~/buck/bin:${PATH}
 
@@ -53,10 +53,10 @@ RUN sdkmanager \
   "extras;android;m2repository"
 
 # Download and unpack Android NDK
-RUN sudo mkdir -p ${ANDROID_NDK} && \
-  sudo chown -R circleci:circleci ${ANDROID_NDK} && \
+RUN sudo mkdir -p ${ANDROID_NDK_HOME} && \
+  sudo chown -R circleci:circleci ${ANDROID_NDK_HOME} && \
   curl --silent --show-error --location --fail --retry 3 --output /tmp/${NDK_VERSION} https://dl.google.com/android/repository/android-ndk-r$NDK_VERSION-linux-x86_64.zip && \
-  unzip -q /tmp/${NDK_VERSION} -d ${ANDROID_NDK} && \
+  unzip -q /tmp/${NDK_VERSION} -d ${ANDROID_NDK_HOME} && \
   rm /tmp/${NDK_VERSION}
 
 # Download and install Buck
