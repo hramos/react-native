@@ -223,7 +223,7 @@ aliases:
 
   - &gradle-download-deps
     name: Download C++ Dependencies
-    command: ./scripts/circleci/gradle_download_deps.sh
+    command: export TERM=${TERM:-dumb} && ./scripts/circleci/gradle_download_deps.sh
 
   - &build-android-app
     name: Build Android App
