@@ -60,7 +60,6 @@ export type Args = {|
   +resetCache: boolean,
   +sourceExts: $ReadOnlyArray<string>,
   +verbose: boolean,
-  +watchFolders: $ReadOnlyArray<string>,
 |};
 
 function runServer(
@@ -101,7 +100,7 @@ function runServer(
     .use(indexPageMiddleware)
     .use(packagerServer.processRequest.bind(packagerServer));
 
-  args.watchFolders.forEach(root => app.use(serveStatic(root)));
+  args.projectRoots.forEach(root => app.use(serveStatic(root)));
 
   app.use(morgan('combined')).use(errorhandler());
 
@@ -197,7 +196,7 @@ function getPackagerServer(args, config, reporter) {
     polyfillModuleNames: config.getPolyfillModuleNames(),
     postMinifyProcess: config.postMinifyProcess,
     postProcessBundleSourcemap: config.postProcessBundleSourcemap,
-    projectRoot: config.getProjectRoot(),
+    projectRoots: args.projectRoots,
     providesModuleNodeModules: providesModuleNodeModules,
     reporter,
     resetCache: args.resetCache,
@@ -206,7 +205,6 @@ function getPackagerServer(args, config, reporter) {
     transformModulePath: transformModulePath,
     verbose: args.verbose,
     watch: !args.nonPersistent,
-    watchFolders: config.getWatchFolders(),
     workerPath: config.getWorkerPath(),
   });
 }
