@@ -190,7 +190,7 @@ try {
     exec('sleep 15s');
     // prepare cache to reduce chances of possible red screen "Can't fibd variable __fbBatchedBridge..."
     exec(
-      'response=$(curl --write-out %{http_code} --silent --output /dev/null localhost:8081/index.bundle?platform=ios&dev=true)',
+      'response=$(curl --write-out %{http_code} --silent --output /dev/null localhost:8080/index.bundle?platform=ios&dev=true)',
     );
     echo(`Starting packager server, ${SERVER_PID}`);
     echo('Executing ' + iosTestType + ' end-to-end test');
@@ -280,7 +280,7 @@ try {
     exec(`kill -9 ${SERVER_PID}`);
     // this is quite drastic but packager starts a daemon that we can't kill by killing the parent process
     // it will be fixed in April (quote David Aurelio), so until then we will kill the zombie by the port number
-    exec("lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill");
+    exec("lsof -i tcp:8080 | awk 'NR!=1 {print $2}' | xargs kill");
   }
   if (APPIUM_PID) {
     echo(`Killing appium ${APPIUM_PID}`);

@@ -434,7 +434,8 @@ jobs:
           at: ~/react-native
 
       - run: *boot-simulator-iphone
-      - run: *boot-simulator-appletv
+      # Disabled for now
+      # - run: *boot-simulator-appletv
 
       - run:
           name: Configure Environment Variables
@@ -658,7 +659,7 @@ workflows:
           requires:
             - checkout_code
 
-      # Test iOS & tvOS
+      # Test iOS and Apple TV
       - test_objc:
           filters: *filter-ignore-gh-pages
           requires:
@@ -669,6 +670,9 @@ workflows:
           filters: *filter-ignore-gh-pages
           requires:
             - checkout_code
+            - test_android
+            - test_objc
+            - test_javascript
 
       # Only runs on vX.X.X tags if all tests are green
       - publish_npm_package:
