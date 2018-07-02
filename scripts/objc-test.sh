@@ -24,8 +24,8 @@ function cleanup {
     WATCHMAN_LOGS=/usr/local/Cellar/watchman/3.1/var/run/watchman/$USER.log
     [ -f $WATCHMAN_LOGS ] && cat $WATCHMAN_LOGS
   fi
-  # kill whatever is occupying port 8081 (packager)
-  lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
+  # kill whatever is occupying port 8080 (packager)
+  lsof -i tcp:8080 | awk 'NR!=1 {print $2}' | xargs kill
   # kill whatever is occupying port 5555 (web socket server)
   lsof -i tcp:5555 | awk 'NR!=1 {print $2}' | xargs kill
 }
@@ -36,7 +36,7 @@ function waitForPackager {
   local -i max_attempts=60
   local -i attempt_num=1
 
-  until $(curl -s http://localhost:8081/status | grep "packager-status:running" -q); do
+  until $(curl -s http://localhost:8080/status | grep "packager-status:running" -q); do
     if (( attempt_num == max_attempts )); then
       echo "Packager did not respond in time. No more attempts left."
       exit 1
@@ -63,13 +63,13 @@ open "./IntegrationTests/launchWebSocketServer.command" || echo "Can't start web
 waitForPackager
 
 # Preload the RNTesterApp bundle for better performance in integration tests
-curl 'http://localhost:8081/RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true' -o temp.bundle
+curl 'http://localhost:8080/RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true' -o temp.bundle
 rm temp.bundle
-curl 'http://localhost:8081/RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true&minify=false' -o temp.bundle
+curl 'http://localhost:8080/RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true&minify=false' -o temp.bundle
 rm temp.bundle
-curl 'http://localhost:8081/IntegrationTests/IntegrationTestsApp.bundle?platform=ios&dev=true' -o temp.bundle
+curl 'http://localhost:8080/IntegrationTests/IntegrationTestsApp.bundle?platform=ios&dev=true' -o temp.bundle
 rm temp.bundle
-curl 'http://localhost:8081/IntegrationTests/RCTRootViewIntegrationTestApp.bundle?platform=ios&dev=true' -o temp.bundle
+curl 'http://localhost:8080/IntegrationTests/RCTRootViewIntegrationTestApp.bundle?platform=ios&dev=true' -o temp.bundle
 rm temp.bundle
 
 # Run tests
