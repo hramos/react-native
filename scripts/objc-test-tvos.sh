@@ -21,7 +21,7 @@ cd "$ROOT"
 export TEST_NAME="tvOS"
 export SCHEME="RNTester-tvOS"
 export SDK="appletvsimulator"
-export DESTINATION="platform=tvOS Simulator,name=Apple TV,OS=11.4"
+export DESTINATION="platform=tvOS Simulator,name=Apple TV 4K,OS=12.0"
 
 # If there's a "test" argument, pass it to the test script.
 . ./scripts/objc-test.sh $1

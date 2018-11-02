@@ -277,11 +277,11 @@ aliases:
 
   - &boot-simulator-iphone
     name: Boot iPhone Simulator
-    command: xcrun simctl boot "iPhone 5s" || true
+    command: xcrun simctl boot "iPhone XS" || true
 
   - &boot-simulator-appletv
     name: Boot Apple TV Simulator
-    command: xcrun simctl boot "Apple TV" || true
+    command: xcrun simctl boot "Apple TV 4K" || true
 
   - &run-objc-ios-tests
     name: iOS Test Suite
@@ -350,7 +350,7 @@ android_defaults: &android_defaults
 macos_defaults: &macos_defaults
   <<: *defaults
   macos:
-    xcode: "9.4.0"
+    xcode: "10.0.0"
 
 version: 2
 jobs:
@@ -439,11 +439,11 @@ jobs:
       - store_test_results:
           path: ~/react-native/reports/junit
 
-  # Xcode 10: Runs unit tests on iOS and Apple TV devices
-  test_objc_xcode10:
+  # Runs unit tests on iOS and Apple TV devices using a different Xcode version
+  test_objc_xcode_compat:
     <<: *defaults
     macos:
-      xcode: "10.0.0"
+      xcode: "9.4.0"
     steps:
       - checkout
       - run: *setup-artifacts
@@ -471,7 +471,7 @@ jobs:
     steps:
       - attach_workspace:
           at: ~/react-native
-      - run: xcrun simctl boot "iPhone 5s" || true
+      - run: xcrun simctl boot "iPhone XS" || true
       - run:
           name: Configure Environment Variables
           command: |
@@ -715,7 +715,7 @@ workflows:
             - checkout_code
 
       # Tooling Compatibility Checks
-      - test_objc_xcode10:
+      - test_objc_xcode_compat:
           filters: *filter-ignore-gh-pages
       - test_node10:
           filters: *filter-ignore-gh-pages

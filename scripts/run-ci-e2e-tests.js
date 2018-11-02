@@ -197,12 +197,12 @@ try {
     if (
       tryExecNTimes(() => {
         exec('sleep 10s');
-        let destination = 'platform=iOS Simulator,name=iPhone 5s,OS=11.4';
+        let destination = 'platform=iOS Simulator,name=iPhone XS,OS=12.0';
         let sdk = 'iphonesimulator';
         let scheme = 'EndToEndTest';
 
         if (argv.tvos) {
-          destination = 'platform=tvOS Simulator,name=Apple TV,OS=11.4';
+          destination = 'platform=tvOS Simulator,name=Apple TV 4K,OS=12.0';
           sdk = 'appletvsimulator';
           scheme = 'EndToEndTest-tvOS';
         }
