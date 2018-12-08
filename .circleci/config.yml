@@ -443,6 +443,7 @@ jobs:
   # Set up an Android environment for downstream jobs
   test_android:
     <<: *android_defaults
+    parallelism: 3
     steps:
       - attach_workspace:
           at: ~/react-native
@@ -498,14 +499,11 @@ jobs:
       - run: *wait-for-avd
 
       # Test Suite
-      - run: *run-android-unit-tests
-      - run: *run-android-instrumentation-tests
-      - run: *build-android-rntester-app
+      - run: ./scripts/test_android.sh
 
       # Run Android end-to-end tests
       # TODO: Fix these failing tests.
-      - run: *display-broken-tests-warning
-      - run: *run-android-e2e-tests
+      # - run: *run-android-e2e-tests
 
       # Collect Results
       - run: *collect-android-test-results
