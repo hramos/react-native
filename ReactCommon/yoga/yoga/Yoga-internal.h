@@ -27,15 +27,7 @@ namespace facebook {
 namespace yoga {
 
 inline bool isUndefined(float value) {
-  // Value of a float in the case of it being not defined is 10.1E20. Earlier
-  // it used to be NAN, the benefit of which was that if NAN is involved in any
-  // mathematical expression the result was NAN. But since we want to have
-  // `-ffast-math` flag being used by compiler which assumes that the floating
-  // point values are not NAN and Inf, we represent YGUndefined as 10.1E20. But
-  // now if YGUndefined is involved in any mathematical operations this
-  // value(10.1E20) would change. So the following check makes sure that if the
-  // value is outside a range (-10E8, 10E8) then it is undefined.
-  return value >= 10E8 || value <= -10E8;
+  return std::isnan(value);
 }
 
 } // namespace yoga
@@ -49,17 +41,6 @@ extern bool YGValueEqual(const YGValue a, const YGValue b);
 extern const YGValue YGValueUndefined;
 extern const YGValue YGValueAuto;
 extern const YGValue YGValueZero;
-
-template <std::size_t size>
-bool YGValueArrayEqual(
-    const std::array<YGValue, size> val1,
-    const std::array<YGValue, size> val2) {
-  bool areEqual = true;
-  for (uint32_t i = 0; i < size && areEqual; ++i) {
-    areEqual = YGValueEqual(val1[i], val2[i]);
-  }
-  return areEqual;
-}
 
 struct YGCachedMeasurement {
   float availableWidth;
@@ -107,6 +88,54 @@ struct YGCachedMeasurement {
 // layouts should not require more than 16 entries to fit within the cache.
 #define YG_MAX_CACHED_RESULT_COUNT 16
 
+namespace facebook {
+namespace yoga {
+namespace detail {
+
+template <size_t Size>
+class Values {
+ private:
+  std::array<YGValue, Size> values_;
+
+ public:
+  Values() = default;
+  explicit Values(const YGValue& defaultValue) noexcept {
+    values_.fill(defaultValue);
+  }
+
+  const YGValue& operator[](size_t i) const noexcept {
+    return values_[i];
+  }
+  YGValue& operator[](size_t i) noexcept {
+    return values_[i];
+  }
+
+  template <size_t I>
+  YGValue get() const noexcept {
+    return std::get<I>(values_);
+  }
+
+  template <size_t I>
+  void set(YGValue& value) noexcept {
+    std::get<I>(values_) = value;
+  }
+
+  bool operator==(const Values& other) const noexcept {
+    for (size_t i = 0; i < Size; ++i) {
+      if (values_[i] != other.values_[i]) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  Values& operator=(const Values& other) = default;
+};
+
+} // namespace detail
+} // namespace yoga
+} // namespace facebook
+
 static const float kDefaultFlexGrow = 0.0f;
 static const float kDefaultFlexShrink = 0.0f;
 static const float kWebDefaultFlexShrink = 1.0f;
@@ -114,6 +143,6 @@ static const float kWebDefaultFlexShrink = 1.0f;
 extern bool YGFloatsEqual(const float a, const float b);
 extern bool YGValueEqual(const YGValue a, const YGValue b);
 extern const YGValue* YGComputedEdgeValue(
-    const std::array<YGValue, YGEdgeCount>& edges,
+    const facebook::yoga::detail::Values<YGEdgeCount>& edges,
     const YGEdge edge,
     const YGValue* const defaultValue);

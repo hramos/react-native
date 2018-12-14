@@ -21,10 +21,10 @@ cd "$ROOT"
 
 # Create cleanup handler
 function cleanup {
-  EXIT_CODE=$?
+  EXIT=$?
   set +e
 
-  if [ $EXIT_CODE -ne 0 ];
+  if [ $EXIT -ne 0 ];
   then
     WATCHMAN_LOGS=/usr/local/Cellar/watchman/3.1/var/run/watchman/$USER.log
     [ -f "$WATCHMAN_LOGS" ] && cat "$WATCHMAN_LOGS"
