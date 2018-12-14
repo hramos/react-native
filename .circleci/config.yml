@@ -499,7 +499,9 @@ jobs:
       - run: *wait-for-avd
 
       # Test Suite
-      - run: ./scripts/test_android.sh
+      - run:
+          name: Android Test Suite
+          command: ./scripts/circleci/test_android.sh
 
       # Run Android end-to-end tests
       # TODO: Fix these failing tests.
