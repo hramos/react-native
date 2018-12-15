@@ -8,28 +8,19 @@
 
 set -e
 
-# shellcheck disable=SC1091
-source "scripts/.tests.env"
-
 COMMANDS_TO_RUN=()
 
-if [ $((0 % CIRCLE_NODE_TOTAL)) -eq "$CIRCLE_NODE_INDEX" ]; then
-  # Run Android Unit Tests
-  COMMANDS_TO_RUN+=("buck test ReactAndroid/src/test/... --config build.threads=$BUILD_THREADS --xml ~/react-native/reports/buck/all-results-raw.xml")
-fi
+# Run Android Unit Tests
+COMMANDS_TO_RUN+=("buck test ReactAndroid/src/test/... --config build.threads=$BUILD_THREADS --xml ~/react-native/reports/buck/all-results-raw.xml")
 
-if [ $((1 % CIRCLE_NODE_TOTAL)) -eq "$CIRCLE_NODE_INDEX" ]; then
-  # Run Android Instrumentation Tests
-  if [[ ! -e ReactAndroid/src/androidTest/assets/AndroidTestBundle.js ]]; then
-    echo "JavaScript bundle missing, cannot run instrumentation tests. Verify build-js-bundle step completed successfully."; exit 1;
-  fi
-  COMMANDS_TO_RUN+=("source scripts/android-setup.sh && NO_BUCKD=1 retry3 timeout 300 buck install ReactAndroid/src/androidTest/buck-runner:instrumentation-tests --config build.threads=$BUILD_THREADS")
+# Run Android Instrumentation Tests
+if [[ ! -e ReactAndroid/src/androidTest/assets/AndroidTestBundle.js ]]; then
+  echo "JavaScript bundle missing, cannot run instrumentation tests. Verify build-js-bundle step completed successfully."; exit 1;
 fi
+COMMANDS_TO_RUN+=("source scripts/android-setup.sh && NO_BUCKD=1 retry3 timeout 300 buck install ReactAndroid/src/androidTest/buck-runner:instrumentation-tests --config build.threads=$BUILD_THREADS")
 
-if [ $((2 % CIRCLE_NODE_TOTAL)) -eq "$CIRCLE_NODE_INDEX" ]; then
-  # Build RNTester App
-  COMMANDS_TO_RUN+=("./gradlew RNTester:android:app:assembleRelease -Pjobs=$BUILD_THREADS")
-fi
+# Build RNTester App
+COMMANDS_TO_RUN+=("./gradlew RNTester:android:app:assembleRelease -Pjobs=$BUILD_THREADS")
 
 RETURN_CODES=()
 FAILURE=0

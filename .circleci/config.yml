@@ -443,7 +443,6 @@ jobs:
   # Set up an Android environment for downstream jobs
   test_android:
     <<: *android_defaults
-    parallelism: 3
     steps:
       - attach_workspace:
           at: ~/react-native
