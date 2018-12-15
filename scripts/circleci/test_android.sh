@@ -11,7 +11,7 @@ set -e
 COMMANDS_TO_RUN=()
 
 # Run Android Unit Tests
-COMMANDS_TO_RUN+=("buck test ReactAndroid/src/test/... --config build.threads=$BUILD_THREADS --xml ~/react-native/reports/buck/all-results-raw.xml")
+COMMANDS_TO_RUN+=("buck test ReactAndroid/src/test/... --config build.threads=$BUILD_THREADS --xml reports/buck/all-results-raw.xml")
 
 # Run Android Instrumentation Tests
 if [[ ! -e ReactAndroid/src/androidTest/assets/AndroidTestBundle.js ]]; then
