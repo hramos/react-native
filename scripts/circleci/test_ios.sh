@@ -8,8 +8,8 @@
 
 set -e
 
-# shellcheck disable=SC1091
-source "scripts/.tests.env"
+# shellcheck source=/dev/null
+. "scripts/.tests.env"
 
 COMMANDS_TO_RUN=()
 

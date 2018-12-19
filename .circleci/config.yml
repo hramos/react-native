@@ -396,7 +396,7 @@ jobs:
           path: ~/react-native/reports/junit
 
   # Runs unit tests on iOS and Apple TV devices
-  test_objc:
+  test_ios:
     <<: *macos_defaults
     parallelism: 2
     steps:
@@ -496,6 +496,9 @@ jobs:
 
       # Wait for AVD to finish booting before running tests
       - run: *wait-for-avd
+
+      # Build RNTester App
+      - run: *build-android-rntester-app
 
       # Test Suite
       - run:
@@ -665,7 +668,7 @@ workflows:
             - checkout_code
 
       # Test iOS & tvOS
-      - test_objc:
+      - test_ios:
           filters: *filter-ignore-gh-pages
           requires:
             - checkout_code
