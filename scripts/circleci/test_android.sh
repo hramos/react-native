@@ -19,9 +19,6 @@ if [[ ! -e ReactAndroid/src/androidTest/assets/AndroidTestBundle.js ]]; then
 fi
 COMMANDS_TO_RUN+=("source scripts/android-setup.sh && NO_BUCKD=1 retry3 timeout 300 buck install ReactAndroid/src/androidTest/buck-runner:instrumentation-tests --config build.threads=$BUILD_THREADS")
 
-# Build RNTester App
-COMMANDS_TO_RUN+=("./gradlew RNTester:android:app:assembleRelease -Pjobs=$BUILD_THREADS")
-
 RETURN_CODES=()
 FAILURE=0
 
