@@ -1,22 +1,16 @@
 # Contributing to React Native
 
-We want to make contributing to this project as easy and transparent as possible. Read on to learn more about our development process and how to propose bug fixes and improvements.
+Thank you for your interest in contributing to React Native! From commenting on and triaging issues, to reviewing and sending PRs, all contributions are welcome.
 
-## What’s in this document?
+Here's the list of major sections covered in this document:
 
-- [Getting Started](#getting-started)
-- [Where to Get Help](#where-to-get-help)
-- [Triaging Issues](#issues)
-- [Our Development Process](#our-development-process)
-- [Pull Requests](#pull-requests)
-- [Running and Writing Tests](#running-and-writing-tests)
+- [Ways to Contribute](#ways-contribute)
+- [How to File an Issue](#how-to-file-an-issue)
+- [Triaging GitHub Issues](#triaging-issues)
 - [Helping with Documentation](#helping-with-documentation)
-- [Core Contributors](#core-contributors)
-- [Appendix](#appendix)
-
-## Getting Started
-
-Thanks for your interest in contributing to React Native! From commenting on and triaging issues, to reviewing and sending PRs, we are here to help you every step of the way.
+- [Code Contributions](#code-contributions)
+- [Website Contributions](#website-contributions)
+- [Community Contributions](#community-contributions)
 
 [Open Source Guides][gh-oss-guide] are a collection of resources for individuals, communities, and companies who want to learn how to run and contribute to an open source project. Contributors and people new to open source alike will find the following guides useful:
 
@@ -27,15 +21,15 @@ Thanks for your interest in contributing to React Native! From commenting on and
 [gh-how-to-contribute]: https://opensource.guide/how-to-contribute/
 [gh-building-community]: https://opensource.guide/building-community/
 
-The main repository, <https://github.com/facebook/react-native>, contains the core React Native framework, and it is where we keep track of bug reports and manage pull requests.
+### [Code of Conduct][conduct]
 
-There's a handful of additional repositories that you should know of:
+As a reminder, all contributors are expected to adhere to the [Code of Conduct][conduct].
 
-- The source code for the **React Native website**, including the documentation, is located at <https://github.com/facebook/react-native-website>
-- **Releases** are coordinated through the <https://github.com/react-native-community/react-native-releases> repository. This includes important documents such as the Changelog.
-- **Discussions** about the future of React Native take place in the <https://github.com/react-native-community/discussions-and-proposals> repository.
+[conduct]: https://code.facebook.com/codeofconduct
 
-Browsing through these repositories might provide some insight into how the React Native open source project is managed. You may want to start by sending a pull request to fix a typo in the release notes, or by participating in discussions with other collaborators.
+<!-- The following sections may need to be moved to a more appropriate location. -->
+<!-- TODO: WIP. -->
+## Ways to Contribute
 
 If you are eager to start contributing code right away, we have a list of [good first issues][gfi] that contain bugs which have a relatively limited scope. As you gain more experience and demonstrate a commitment to evolving React Native, you may be granted issue management permissions in the main repository.
 
@@ -52,15 +46,30 @@ Each of these tasks is highly impactful, and maintainers will appreciate your he
 [gfi]: https://github.com/facebook/react-native/labels/good%20first%20issue
 [docs-prs]: https://github.com/facebook/react-native-website/pulls
 [pr-no-test-plan]: https://github.com/facebook/react-native/pulls?utf8=%E2%9C%93&q=is%3Aopen+is%3Apr+-label%3A%22PR%3A+Includes+Test+Plan%22+
+<!-- END: Ways to Contribute -->
 
-
+<!-- TODO: WIP. -->
 ### Our Development Process
 
 Most changes from engineers at Facebook will sync to [GitHub][facebook/react-native] through a bridge with Facebook's internal source control. Changes from the community are handled through GitHub pull requests. Once a change made on GitHub is approved, it will first be imported into Facebook's internal source control. The change will eventually sync back to GitHub as a single commit once it has passed Facebook's internal tests.
 
 [facebook/react-native]: https://github.com/facebook/react-native
+<!-- END: Development Process -->
 
+### Repositories
+<!-- TODO: WIP. -->
+The main repository, <https://github.com/facebook/react-native>, contains the core React Native framework, and it is here where we keep track of bug reports and manage pull requests.
 
+There's a handful of additional repositories that you should know of:
+
+- The source code for the **React Native website**, including the documentation, is located at <https://github.com/facebook/react-native-website>
+- **Releases** are coordinated through the <https://github.com/react-native-community/react-native-releases> repository. This includes important documents such as the Changelog.
+- **Discussions** about the future of React Native take place in the <https://github.com/react-native-community/discussions-and-proposals> repository.
+
+Browsing through these repositories might provide some insight into how the React Native open source project is managed. You may want to start by sending a pull request to fix a typo in the release notes, or by participating in discussions with other collaborators.
+<!-- END: Repositories. -->
+
+<!-- TODO: WIP. -->
 ## Where to Get Help
 
 As you work on React Native, it is natural that sooner or later you may require help. In addition to the resources listed in [SUPPORT][support], people interested in contributing may take advantage of the following:
@@ -75,21 +84,53 @@ As you work on React Native, it is natural that sooner or later you may require 
 [at-reactnativecomm]: https://twitter.com/reactnativecomm
 [support]: http://github.com/facebook/react-native/blob/master/.github/SUPPORT.md
 [meta]: https://github.com/react-native-community/discussions-and-proposals
+<!-- END: Where to Get Help -->
 
-
-## Issues
+<!-- START: GitHub Issues -->
+# GitHub Issues
 
 We use GitHub issues to track public bugs. Please ensure your description is clear and has sufficient instructions to be able to reproduce the issue.
 
+- [How to File an Issue](#how-to-file-an-issue)
+- [Triaging Issues](#triaging-issues)
+
+## How to File an Issue
+
+<!-- TODO: Incoming. -->
+
+### Security Bugs
+
 Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe disclosure of security bugs. In those cases, please go through the process outlined on that page and do not file a public issue.
 
-### Triaging Issues
+## Triaging Issues
 
-TODO: Incoming.
+<!-- TODO: Incoming. -->
 
-## Pull Requests
+<!-- END: GitHub Issues -->
 
-### Quick Start
+<!-- START: Docs Contributions -->
+# Helping with Documentation
+
+<!-- TODO: WIP. -->
+
+If you are adding new functionality or introducing a change in behavior, we will ask you to update the documentation to reflect your changes. The docs are hosted as part of the React Native website, which itself is hosted on GitHub Pages. The API reference is automatically generated [from the Markdown sources for the docs](https://github.com/facebook/react-native-website/tree/master/docs).
+
+## Contributing to the Blog
+
+<!-- TODO: WIP. -->
+
+The React Native blog is generated [from the Markdown sources for the blog](https://github.com/facebook/react-native-website/tree/master/website/blog). Please open an issue in the `react-native-website` repository and get the go-ahead from a maintainer before writing a blog post.
+
+We recommend referring to the [CONTRIBUTING](https://github.com/facebook/react-native-website/blob/master/CONTRIBUTING.md) document for the `react-native-website` repository to learn more.
+<!-- END: Docs Contributions -->
+
+
+<!-- START: Code Contributions -->
+# Code Contributions
+
+- [Step-by-step Guide](#step-by-step-guide)
+- [Style Guide](#style-guide)
+- [Running](#running-tests) and [Writing Tests](#writing-tests)
 
 Code-level contributions to React Native generally come in the form of [pull requests][pr]. The process of proposing a change to React Native can be summarized as follows:
 
@@ -109,17 +150,17 @@ Up next, we'll go deeper into each of these steps.
 
 [pr]: https://help.github.com/en/articles/about-pull-requests
 
-### Step-by-Step Guide
+## Step-by-Step Guide
 
 These instructions provide the step-by-step process to set up your machine to make contributions to the core React Native repository, and create your first pull request.
 
-#### 1. Install `git`
+### 1. Install `git`
 
 The React Native source code is hosted on GitHub. You can interact with the git version control through the `git` command line program. We recommend you follow [GitHub's instructions][git] to set up git on your machine.
 
 [git]: https://help.github.com/articles/set-up-git/
 
-#### 2. Get the source code
+### 2. Get the source code
 
 While you can browse the source code for React Native on [GitHub][facebook/react-native], we recommend you set up a fork on your local machine.
 
@@ -138,11 +179,11 @@ git remote add fork https://github.com/your_username/react-native.git
 
 A new `react-native/` directory will be created with the contents of the core React Native repository. This directory is actually a clone of the React Native git repository. It is set up with two remotes: `origin` for the upstream @facebook/react-native repository, and `fork` for the fork of React Native on your own GitHub account.
 
-#### 3. Set up your development environment
+### 3. Set up your development environment
 
 There's a few additional tools you will need in order to build and develop for React Native. These are covered as part of the [Getting Started](https://facebook.github.io/react-native/docs/getting-started) guide under the "Building Projects with Native Code" section.
 
-#### 4. Create a branch
+### 4. Create a branch
 
 We recommend creating a new branch in your fork to keep track of your changes:
 
@@ -151,23 +192,23 @@ git checkout --branch my_feature_branch --track origin/master
 ```
 
 
-#### 5. Make changes to the code
+### 5. Make changes to the code
 
 You can now make any changes deemed necessary using your code editor of choice. Many popular editors integrate with source control in some way. You can also use `git status` and `git diff` on the command line to keep track of what has changed.
 
-#### 6. Test your changes
+### 6. Test your changes
 
 Make sure your changes are correct and do not introduce any test failures. You can learn more in [Running and Writing Tests](#running-and-writing-tests).
 
-#### 7. Lint your code
+### 7. Lint your code
 
 We understand it can take a while to ramp up and get a sense of the style followed for each of the languages in use in the core React Native repository. Developers should not need to worry about minor nits, so whenever possible, we use tools that automate the process of rewriting your code to follow conventions.
 
 For example, we use [Prettier](https://prettier.io/) to format our JavaScript code. This saves you time and energy as you can let Prettier fix up any formatting issues automatically through its editor integrations, or by manually running `npm run prettier`. We also use a linter to catch styling issues that may exist in your code. You can check the status of your code styling by simply running `npm run lint`.
 
-To learn more about coding conventions, refer to the [Coding Style](#coding-style) reference in the Appendix.
+To learn more about coding conventions, refer to the [Style Guide](#style-guide).
 
-#### 8. Commit your changes
+### 8. Commit your changes
 
 Once you're satisfied, make sure to add your changes to version control using `git`:
 
@@ -185,13 +226,13 @@ This guide covers just enough to help you along with your first contribution. Gi
 - [Using Git](https://help.github.com/en/categories/using-git)
 - [The GitHub Flow](https://guides.github.com/introduction/flow/)
 
-#### 9. Complete the Contributor License Agreement ("CLA")
+### 9. Complete the Contributor License Agreement ("CLA")
 
 In order to accept your pull request, we need you to submit a CLA. You only need to do this once to work on any of Facebook's open source projects.
 
 Complete your CLA here: <https://code.facebook.com/cla>
 
-#### 10. Push your changes to GitHub
+### 10. Push your changes to GitHub
 
 Once your changes have been commited to version control, you can push them to GitHub.
 
@@ -210,7 +251,7 @@ remote:
 
 Visit the provided URL to proceed to the next step.
 
-#### 11. Create your pull request
+### 11. Create your pull request
 
 You are almost there! The next step is to fill out the pull request. Use a descriptive title that is not too long. Then, make sure to fill out all of the fields provided by the default pull request template:
 
@@ -218,26 +259,47 @@ You are almost there! The next step is to fill out the pull request. Use a descr
 
 **Changelog:** Help release maintainers write release notes by providing a short description of what will be changed should the pull request get merged.
 
-**Test Plan:** Let reviewers know how you tested your changes. Did you consider any edge cases? Which steps did you follow to make sure your changes have the desired effect?
+**Test Plan:** Let reviewers know how you tested your changes. Did you consider any edge cases? Which steps did you follow to make sure your changes have the desired effect? See [What is a Test Plan?][test-plan] to learn more.
 
-TODO: Link to an article on writing a good test plan.
+[test-plan]: https://medium.com/@martinkonicek/what-is-a-test-plan-8bfc840ec171
 
-#### 12. Review and address feedback
+### 12. Review and address feedback
 
 Keep an eye on any comments and review feedback left on your pull request on GitHub. Maintainers will do their best to provide constructive, actionable feedback to help get your changes ready to be merged into the core React Native repository.
 
-TODO: Review process, how a PR gets merged, congratulations on your first contribution, next steps, etc.
+<!-- TODO: Talk about the review process and how a PR is eventually merged. -->
+<!-- TODO: Post-merge: Congratulations on your first contribution. What's next? -->
 
-## Running and Writing Tests
+
+## Style Guide
+
+We use Prettier to format our JavaScript code. This saves you time and energy as you can let Prettier fix up any formatting issues automatically through its editor integrations, or by manually running `npm run prettier`. We also use a linter to catch styling issues that may exist in your code. You can check the status of your code styling by simply running `npm run lint`.
+
+However, there are still some styles that the linter cannot pick up, notably in Java or Objective-C code.
+
+**Objective-C:**
+
+* Space after `@property` declarations
+* Brackets on *every* `if`, on the *same* line
+* `- method`, `@interface`, and `@implementation` brackets on the following line
+* *Try* to keep it around 80 characters line length (sometimes it's just not possible...)
+* `*` operator goes with the variable name (e.g. `NSObject *variableName;`)
+
+**Java:**
+
+* If a method call spans multiple lines closing bracket is on the same line as the last argument.
+* If a method header doesn't fit on one line each argument goes on a separate line.
+* 100 character line length
+
+
+## Running Tests
 
 This section is about testing your changes to React Native as a contributor. If you haven't yet, go through the steps to set up your development environment for [building projects with native code][env-setup]. If you are intested in writing tests for a React Native app, you can follow Jest's [Testing React Native Apps][jest-tutorial] tutorial.
 
 [env-setup]: http://facebook.github.io/react-native/docs/getting-started
 [jest-tutorial]: https://jestjs.io/docs/en/tutorial-react-native
 
-### Running Tests
-
-#### JavaScript Tests
+### JavaScript Tests
 
 The simplest way to run the JavaScript test suite is by using the following command at the root of your React Native checkout:
 
@@ -253,7 +315,7 @@ You should also make sure your code passes [Flow](https://flowtype.org/) tests:
 npm run flow
 ```
 
-#### iOS Tests
+### iOS Tests
 
 To run the iOS tests, invoke the following script from the root of your React Native checkout:
 
@@ -263,7 +325,7 @@ To run the iOS tests, invoke the following script from the root of your React Na
 
 You can also open the Xcode project at `RNTester/RNTester.xcodeproj` and run tests locally by pressing Command + U.
 
-#### Android Tests
+### Android Tests
 
 The Android unit tests do not run in an emulator. They just use a normal Java installation. The test suite is built using the [Buck build tool][buck-install].
 
@@ -289,7 +351,7 @@ Then, run the Android integration tests:
 ./scripts/run-android-local-integration-tests.sh
 ```
 
-#### End-to-end Tests
+### End-to-end Tests
 
 Finally, make sure end-to-end tests run successfully by executing the following script:
 
@@ -308,23 +370,31 @@ npm run test-ios-e2e
 
 If you work on a component or API that isn't convered by a Detox test, please consider adding one. Detox tests are stored under [`RNTester/e2e/__tests__`](https://github.com/facebook/react-native/tree/master/RNTester/e2e/__tests__).
 
+### Continuous Integration Tests
+
+We use [Appveyor][config-appveyor] and [Circle CI][config-circleci] to automatically run our open source tests. Appveyor and Circle CI will run these tests whenever a commit is added to a pull request, as a way to help maintainers understand whether a code change introduces a regression. The tests also run on commits to the master and `*-stable` branches in order to keep track of the health of these branches.
+
+[config-appveyor]: https://github.com/facebook/react-native/blob/master/.appveyor/config.yml
+[config-circleci]: https://github.com/facebook/react-native/blob/master/.circleci/config.yml
+
+There's another set of tests that run within Facebook's internal test infrastructure. Some of these tests are integration tests defined by internal consumers of React Native (e.g. unit tests for a React Native surface in the Facebook app). These tests run on every commit to the copy of React Native hosted on Facebook's source control. They also run when a pull request is imported to Facebook's source control. As it happens, should one of these tests fail, you'll need someone at Facebook to take a look. Since pull requests can only be imported by Facebook employees, whoever imported the pull request should be able to facilitate any details.
+
+> **Running CI tests locally**
+>
+> Most open source collaborators rely on Circle CI and Appveyor to see the results of these tests. If you'd rather verify your changes locally using the same configuration as Circle CI, Circle CI provides a [command line interface](https://circleci.com/docs/2.0/local-cli/) with the ability to run jobs locally.
 
 
-#### Continuous Integration Tests
-
-TODO: Talk about Circle CI, Appveyor.
-
-### Writing Tests
+## Writing Tests
 
 Whenever you are fixing a bug or adding new functionality to React Native, it is a good idea to add a test that covers it. Depending on the change you're making, there are different types of tests that may be appropriate.
 
-#### JavaScript Jest Tests
+### JavaScript Jest Tests
 
 The JavaScript tests can be found inside `__test__` directories, colocated next to the files that are being tested. See [`TouchableHighlight-test.js`][js-jest-test] for a basic example.
 
 [js-jest-test]: https://github.com/facebook/react-native/blob/master/Libraries/Components/Touchable/__tests__/TouchableHighlight-test.js
 
-#### iOS Integration Tests
+### iOS Integration Tests
 
 React Native provides facilities to make it easier to test integrated components that require both native and JS components to communicate across the bridge. The two main components are `RCTTestRunner` and `RCTTestModule`. `RCTTestRunner` sets up the React Native environment and provides facilities to run the tests as `XCTestCase`s in Xcode (`runTest:module` is the simplest method). `RCTTestModule` is exported to JavaScript as `NativeModules.TestModule`.
 
@@ -340,7 +410,7 @@ See the following for example usage and integration points:
 [f-ios-integration-tests]: https://github.com/facebook/react-native/blob/master/RNTester/RNTesterIntegrationTests/RNTesterIntegrationTests.m
 [f-ios-integration-test-app]: https://github.com/facebook/react-native/blob/master/IntegrationTests/IntegrationTestsApp.js
 
-#### iOS Snapshot Tests
+### iOS Snapshot Tests
 
 A common type of integration test is the snapshot test. These tests render a component, and verify snapshots of the screen against reference images using `TestModule.verifySnapshot()`, using the [`FBSnapshotTestCase`](https://github.com/facebook/ios-snapshot-test-case) library behind the scenes. Reference images are recorded by setting `recordMode = YES` on the `RCTTestRunner`, then running the tests.
 
@@ -348,45 +418,16 @@ Snapshots will differ slightly between 32 and 64 bit, and various OS versions, s
 
 If you make a change that affects a snapshot test in a pull request, such as adding a new example case to one of the examples that is snapshotted, you'll need to re-record the snapshot reference image. To do this, simply change to `_runner.recordMode = YES;` in [RNTester/RNTesterSnapshotTests.m](https://github.com/facebook/react-native/blob/136666e2e7d2bb8d3d51d599fc1384a2f68c43d3/RNTester/RNTesterIntegrationTests/RNTesterSnapshotTests.m#L29), re-run the failing tests, then flip record back to `NO` and submit/update your pull request and wait to see if the Circle build passes.
 
-#### Android Unit Tests
+### Android Unit Tests
 
 It's a good idea to add an Android unit test whenever you are working on code that can be tested by Java code alone. The Android unit tests are located in `ReactAndroid/src/tests`. We recommend browsing through these to get an idea of what a good unit test might look like.
 
-#### Android Integration Tests
+### Android Integration Tests
 
 It's a good idea to add an Android integration test whenever you are working on code that needs both JavaScript and Java to be tested in conjunction. The Android integration tests can be found in `ReactAndroid/src/androidTest`. We recommend browsing through these to get an idea of what a good integration test might look like.
 
-## Helping with Documentation
+<!-- END: Code Contributions -->
 
-TODO: Flesh this out a bit more.
+# Community Contributions
 
-If you are adding new functionality or introducing a change in behavior, we will ask you to update the documentation to reflect your changes. The docs are hosted as part of the React Native website. The website itself is hosted on GitHub Pages and is automatically generated [from the Markdown sources](https://github.com/facebook/react-native-website/tree/master/docs).
-
-To update the documentation, you will need to clone the [`facebook/react-native-website`](https://github.com/facebook/react-native-website) repository, make your changes in the `docs/` directory, and then send a pull request. For lightweight changes to a single file, you may also click on "Edit" at the top of any doc right here on the website.
-
-
-## Core Contributors
-
-TODO: Incoming.
-
-## Appendix
-
-### Coding Style
-
-We use Prettier to format our JavaScript code. This saves you time and energy as you can let Prettier fix up any formatting issues automatically through its editor integrations, or by manually running `npm run prettier`. We also use a linter to catch styling issues that may exist in your code. You can check the status of your code styling by simply running `npm run lint`.
-
-However, there are still some styles that the linter cannot pick up, notably in Java or Objective-C code.
-
-**Objective-C:**
-
-* Space after `@property` declarations
-* Brackets on *every* `if`, on the *same* line
-* `- method`, `@interface`, and `@implementation` brackets on the following line
-* *Try* to keep it around 80 characters line length (sometimes it's just not possible...)
-* `*` operator goes with the variable name (e.g. `NSObject *variableName;`)
-
-**Java:**
-
-* If a method call spans multiple lines closing bracket is on the same line as the last argument.
-* If a method header doesn't fit on one line each argument goes on a separate line.
-* 100 character line length
+<!-- TODO: Incoming. This section will talk about non-code contributions, such as blog posts and case studies posted outside of the RN blog, talks at conferences, community components, etc. -->
