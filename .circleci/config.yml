@@ -185,6 +185,7 @@ jobs:
       - run: *setup-artifacts
 
       - restore-cache: *restore-yarn-cache
+      - run: yarn config set yarn-offline-mirror $YARN_OFFLINE_DIR
       - run: *yarn
       - save-cache: *save-yarn-cache
 
