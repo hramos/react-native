@@ -25,3 +25,4 @@ WORKDIR $app_dir
 
 RUN yarn config set yarn-offline-mirror $YARN_OFFLINE_DIR \
   && yarn
+RUN yarn global add react-native-cli
