@@ -1,0 +1,27 @@
+# Copyright (c) Facebook, Inc. and its affiliates.
+#
+# This source code is licensed under the MIT license found in the
+# LICENSE file in the root directory of this source tree.
+#
+FROM circleci/node:8
+
+LABEL Description="React Native Node Base Image"
+LABEL maintainer="Héctor Ramos <hector@fb.com>"
+
+ARG yarn_dir=/home/circleci/yarn
+ARG app_dir=$yarn_dir/react-native
+ENV YARN_OFFLINE_DIR=$yarn_dir/offline-mirror
+
+RUN mkdir -p $YARN_OFFLINE_DIR \
+  && mkdir -p $app_dir \
+  && chown -R $USER:$USER $yarn_dir \
+  && chown -R $USER:$USER $app_dir \
+  && chown -R $USER:$USER $YARN_OFFLINE_DIR
+
+ADD yarn.lock $app_dir/yarn.lock
+ADD package.json $app_dir/package.json
+
+WORKDIR $app_dir
+
+RUN yarn config set yarn-offline-mirror $YARN_OFFLINE_DIR \
+  && yarn
