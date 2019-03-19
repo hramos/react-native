@@ -48,7 +48,7 @@ Each of these tasks is highly impactful, and maintainers will appreciate your he
 [pr-no-test-plan]: https://github.com/facebook/react-native/pulls?utf8=%E2%9C%93&q=is%3Aopen+is%3Apr+-label%3A%22PR%3A+Includes+Test+Plan%22+
 <!-- END: Ways to Contribute -->
 
-<!-- TODO: WIP. -->
+
 ### Our Development Process
 
 Most changes from engineers at Facebook will sync to [GitHub][facebook/react-native] through a bridge with Facebook's internal source control. Changes from the community are handled through GitHub pull requests. Once a change made on GitHub is approved, it will first be imported into Facebook's internal source control. The change will eventually sync back to GitHub as a single commit once it has passed Facebook's internal tests.
@@ -86,7 +86,6 @@ We use GitHub issues to track public bugs. Please ensure your description is cle
 Facebook has a [bounty program](https://www.facebook.com/whitehat/) for the safe disclosure of security bugs. In those cases, please go through the process outlined on that page and do not file a public issue.
 
 ## Triaging Issues
-
 <!-- TODO: Incoming. -->
 
 <!-- END: GitHub Issues -->
@@ -274,6 +273,26 @@ However, there are still some styles that the linter cannot pick up, notably in 
 * If a method header doesn't fit on one line each argument goes on a separate line.
 * 100 character line length
 
+## Style Guide
+
+We use Prettier to format our JavaScript code. This saves you time and energy as you can let Prettier fix up any formatting issues automatically through its editor integrations, or by manually running `npm run prettier`. We also use a linter to catch styling issues that may exist in your code. You can check the status of your code styling by simply running `npm run lint`.
+
+However, there are still some styles that the linter cannot pick up, notably in Java or Objective-C code.
+
+**Objective-C:**
+
+* Space after `@property` declarations
+* Brackets on *every* `if`, on the *same* line
+* `- method`, `@interface`, and `@implementation` brackets on the following line
+* *Try* to keep it around 80 characters line length (sometimes it's just not possible...)
+* `*` operator goes with the variable name (e.g. `NSObject *variableName;`)
+
+**Java:**
+
+* If a method call spans multiple lines closing bracket is on the same line as the last argument.
+* If a method header doesn't fit on one line each argument goes on a separate line.
+* 100 character line length
+
 
 ## Running Tests
 
@@ -366,7 +385,6 @@ There's another set of tests that run within Facebook's internal test infrastruc
 >
 > Most open source collaborators rely on Circle CI and Appveyor to see the results of these tests. If you'd rather verify your changes locally using the same configuration as Circle CI, Circle CI provides a [command line interface](https://circleci.com/docs/2.0/local-cli/) with the ability to run jobs locally.
 
-
 ## Writing Tests
 
 Whenever you are fixing a bug or adding new functionality to React Native, it is a good idea to add a test that covers it. Depending on the change you're making, there are different types of tests that may be appropriate.
@@ -431,3 +449,4 @@ As you work on React Native, it is natural that sooner or later you may require 
 [support]: http://github.com/facebook/react-native/blob/master/.github/SUPPORT.md
 [meta]: https://github.com/react-native-community/discussions-and-proposals
 <!-- END: Where to Get Help -->
+
