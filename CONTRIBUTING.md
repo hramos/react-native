@@ -69,23 +69,6 @@ There's a handful of additional repositories that you should know of:
 Browsing through these repositories might provide some insight into how the React Native open source project is managed. You may want to start by sending a pull request to fix a typo in the release notes, or by participating in discussions with other collaborators.
 <!-- END: Repositories. -->
 
-<!-- TODO: WIP. -->
-## Where to Get Help
-
-As you work on React Native, it is natural that sooner or later you may require help. In addition to the resources listed in [SUPPORT][support], people interested in contributing may take advantage of the following:
-
-* **Twitter**. The React Native team at Facebook has its own account at [**@reactnative**][at-reactnative], and the React Native Community uses [**@reactnativecomm**][at-reactnativecomm]. If you are stuck, or need help contributing, please do not hesitate to reach out.
-
-* **Proposals Repository**. If you are considering working on a feature large in scope, consider [creating a proposal first][meta]. The community is highly willing to help you figure out the right approach, and we'd be happy to help.
-
-* **React Native Community Discord**. While we try to hold most discussions in public, sometimes it can be beneficial to have conversations in real time with other contributors. People who have demonstrated a commitment to moving React Native forward through sustained contributions to the project may eventually be invited to join the React Native Community Discord.
-
-[at-reactnative]: https://twitter.com/reactnative
-[at-reactnativecomm]: https://twitter.com/reactnativecomm
-[support]: http://github.com/facebook/react-native/blob/master/.github/SUPPORT.md
-[meta]: https://github.com/react-native-community/discussions-and-proposals
-<!-- END: Where to Get Help -->
-
 <!-- START: GitHub Issues -->
 # GitHub Issues
 
@@ -431,3 +414,20 @@ It's a good idea to add an Android integration test whenever you are working on 
 # Community Contributions
 
 <!-- TODO: Incoming. This section will talk about non-code contributions, such as blog posts and case studies posted outside of the RN blog, talks at conferences, community components, etc. -->
+
+<!-- START: Where to Get Help -->
+# Where to Get Help
+
+As you work on React Native, it is natural that sooner or later you may require help. In addition to the resources listed in [SUPPORT][support], people interested in contributing may take advantage of the following:
+
+* **Twitter**. The React Native team at Facebook has its own account at [**@reactnative**][at-reactnative], and the React Native Community uses [**@reactnativecomm**][at-reactnativecomm]. If you are stuck, or need help contributing, please do not hesitate to reach out.
+
+* **Proposals Repository**. If you are considering working on a feature large in scope, consider [creating a proposal first][meta]. The community is highly willing to help you figure out the right approach, and we'd be happy to help.
+
+* **React Native Community Discord**. While we try to hold most discussions in public, sometimes it can be beneficial to have conversations in real time with other contributors. People who have demonstrated a commitment to moving React Native forward through sustained contributions to the project may eventually be invited to join the React Native Community Discord.
+
+[at-reactnative]: https://twitter.com/reactnative
+[at-reactnativecomm]: https://twitter.com/reactnativecomm
+[support]: http://github.com/facebook/react-native/blob/master/.github/SUPPORT.md
+[meta]: https://github.com/react-native-community/discussions-and-proposals
+<!-- END: Where to Get Help -->
