@@ -533,6 +533,39 @@ jobs:
       - store_artifacts:
           path: ~/react-native/coverage/
 
+  # Collect iOS test coverage
+  ios_coverage:
+    <<: *macos_defaults
+    environment:
+      - CI_BRANCH: $CIRCLE_BRANCH
+      - CI_PULL_REQUEST: $CIRCLE_PULL_REQUEST
+      - CI_BUILD_NUMBER: $CIRCLE_BUILD_NUM
+      - CI_BUILD_URL: $CIRCLE_BUILD_URL
+    steps:
+      - checkout
+      - run: *setup-artifacts
+
+      - restore-cache: *restore-yarn-cache
+      - run: *yarn
+
+      - run:
+          name: Boot iPhone Simulator
+          command: source scripts/.tests.env && xcrun simctl boot "$IOS_DEVICE" || true
+
+      - restore-cache: *restore-brew-cache
+      - run:
+          name: Install Watchman
+          command: |
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install watchman >/dev/null
+            touch .watchmanconfig
+
+      - run:
+          name: Collect iOS Test Coverage
+          command: |
+            ./scripts/objc-test-ios.sh coverage
+            xcov -p ../React/React.xcproject -s React -o ../build --coveralls_repo_token "$COVERALLS_REPO_TOKEN"
+          when: always
+
   # -------------------------
   #      JOBS: Releases
   # -------------------------
@@ -606,4 +639,7 @@ workflows:
 
       # Gather coverage on master
       - js_coverage:
+          filters: *filter-only-master
+
+      - ios_coverage:
           filters: *filter-only-master

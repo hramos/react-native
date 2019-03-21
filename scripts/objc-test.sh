@@ -56,16 +56,21 @@ function waitForPackager {
 }
 
 function runTests {
+  if [ "$COLLECT_CODE_COVERAGE" ]; then
+    BUILD_ARGS=("-enableCodeCoverage" "YES" "GCC_GENERATE_TEST_COVERAGE_FILES=YES")
+  fi
+
   xcodebuild \
     -project "RNTester/RNTester.xcodeproj" \
     -scheme "$SCHEME" \
     -sdk "$SDK" \
     -destination "$DESTINATION" \
-    -UseModernBuildSystem=NO \
+    -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
+    "${BUILD_ARGS[@]}" \
     build test
 }
 
-function buildTests {
+function buildProject {
   if [ "$TREAT_WARNINGS_AS_ERRORS" ]; then
     BUILD_ARGS=("GCC_TREAT_WARNINGS_AS_ERRORS=YES")
   fi
@@ -74,9 +79,23 @@ function buildTests {
     -project "RNTester/RNTester.xcodeproj" \
     -scheme "$SCHEME" \
     -sdk "$SDK" \
-    -UseModernBuildSystem=NO \
+    -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
     "${BUILD_ARGS[@]}" \
     build
+}
+
+function analyzeProject {
+  if [ "$TREAT_WARNINGS_AS_ERRORS" ]; then
+    BUILD_ARGS=("GCC_TREAT_WARNINGS_AS_ERRORS=YES")
+  fi
+
+  xcodebuild \
+    -project "RNTester/RNTester.xcodeproj" \
+    -scheme "$SCHEME" \
+    -sdk "$SDK" \
+    -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
+    "${BUILD_ARGS[@]}" \
+    analyze
 }
 
 function prettyFormat {
@@ -119,11 +138,16 @@ if [ "$1" = "test" ]; then
   curl 'http://localhost:8081/IntegrationTests/RCTRootViewIntegrationTestApp.bundle?platform=ios&dev=true' -o temp.bundle
   rm temp.bundle
 
-  # Run tests
+  # Run tests.
   runTests | prettyFormat && exit "${PIPESTATUS[0]}"
-
+elif [ "$1" = "coverage" ]; then
+  # Run tests and collect coverage.
+  COLLECT_CODE_COVERAGE=YES runTests | prettyFormat && exit "${PIPESTATUS[0]}"
+elif [ "$1" = "analyze" ]; then
+  # Analyze without running tests.
+  analyzeProject | prettyFormat && exit "${PIPESTATUS[0]}"
 else
-  # Build without running tests. Fails on warnings.
-  buildTests | prettyFormat && exit "${PIPESTATUS[0]}"
+  # Build without running tests.
+  buildProject | prettyFormat && exit "${PIPESTATUS[0]}"
 
 fi
