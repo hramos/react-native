@@ -11,7 +11,7 @@
 # also run the RNTester integration test (needs JS and packager):
 # ./objc-test-ios.sh test
 
-set -ex
+set -e
 
 SCRIPTS=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT=$(dirname "$SCRIPTS")

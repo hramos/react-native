@@ -349,10 +349,6 @@ jobs:
       - save-cache: *save-brew-cache
 
       - run:
-          name: Verify iOS Builds without Warnings
-          command: ./scripts/objc-test-ios.sh
-
-      - run:
           name: Run iOS Test Suite
           command: ./scripts/objc-test-ios.sh test
 
