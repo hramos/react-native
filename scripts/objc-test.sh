@@ -16,6 +16,14 @@ set -e
 
 SCRIPTS=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT=$(dirname "$SCRIPTS")
+BUILD_ARGS=()
+if [ "$TREAT_WARNINGS_AS_ERRORS" == "YES" ]; then
+  BUILD_ARGS+=("GCC_TREAT_WARNINGS_AS_ERRORS=YES")
+fi
+
+if [ "$COLLECT_CODE_COVERAGE" == "YES" ]; then
+  BUILD_ARGS+=("-enableCodeCoverage" "YES" "GCC_GENERATE_TEST_COVERAGE_FILES=YES")
+fi
 
 cd "$ROOT"
 
@@ -56,27 +64,17 @@ function waitForPackager {
 }
 
 function runTests {
-  if [ "$TREAT_WARNINGS_AS_ERRORS" ]; then
-    BUILD_ARGS=("GCC_TREAT_WARNINGS_AS_ERRORS=YES")
-  fi
-
   xcodebuild \
     -project "RNTester/RNTester.xcodeproj" \
     -scheme "$SCHEME" \
     -sdk "$SDK" \
     -destination "$DESTINATION" \
     -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
-    -enableCodeCoverage "$COLLECT_CODE_COVERAGE" \
-    GCC_GENERATE_TEST_COVERAGE_FILES=YES \
     "${BUILD_ARGS[@]}" \
     build test
 }
 
 function buildProject {
-  if [ "$TREAT_WARNINGS_AS_ERRORS" ]; then
-    BUILD_ARGS=("GCC_TREAT_WARNINGS_AS_ERRORS=YES")
-  fi
-
   xcodebuild \
     -project "RNTester/RNTester.xcodeproj" \
     -scheme "$SCHEME" \
