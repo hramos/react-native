@@ -26,6 +26,7 @@ export SCHEME="RNTester"
 export SDK="iphonesimulator"
 export DESTINATION="platform=iOS Simulator,name=${IOS_DEVICE},OS=${IOS_TARGET_OS}"
 export USE_MODERN_BUILD_SYSTEM="NO"
+export COLLECT_CODE_COVERAGE="YES"
 
 # If there's a "test" argument, pass it to the test script.
 ./scripts/objc-test.sh $1

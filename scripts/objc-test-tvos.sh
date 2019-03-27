@@ -26,6 +26,7 @@ export SCHEME="RNTester-tvOS"
 export SDK="appletvsimulator"
 export DESTINATION="platform=tvOS Simulator,name=${TVOS_DEVICE},OS=${IOS_TARGET_OS}"
 export USE_MODERN_BUILD_SYSTEM="NO"
+export COLLECT_CODE_COVERAGE="NO"
 
 # If there's a "test" argument, pass it to the test script.
 ./scripts/objc-test.sh $1
