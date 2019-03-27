@@ -55,7 +55,7 @@
   "scripts": {
     "start": "react-native start --reactNativePath .",
     "test": "jest",
-    "test-ci": "jest --maxWorkers=2 --ci --reporters=\"default\" --reporters=\"jest-junit\"",
+    "test-ci": "jest --maxWorkers=2 --ci --coverage --reporters=\"default\" --reporters=\"jest-junit\"",
     "flow": "flow",
     "flow-check-ios": "flow check",
     "flow-check-android": "flow check --flowconfig-name .flowconfig.android",

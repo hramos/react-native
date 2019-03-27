@@ -171,6 +171,7 @@ macos_defaults: &macos_defaults
   <<: *defaults
   macos:
     xcode: "10.1.0"
+  shell: /bin/bash --login -o pipefail
 
 # -------------------------
 #          JOBS
@@ -295,12 +296,20 @@ jobs:
   # Runs JavaScript tests on Node 8
   test_javascript:
     <<: *js_defaults
+    environment:
+      - CI_BRANCH: $CIRCLE_BRANCH
+      - CI_PULL_REQUEST: $CIRCLE_PULL_REQUEST
+      - CI_BUILD_NUMBER: $CIRCLE_BUILD_NUM
+      - CI_BUILD_URL: $CIRCLE_BUILD_URL
     steps:
       - attach_workspace:
           at: ~/react-native
 
       - run: *run-js-tests
 
+      - run:
+          name: Collect code coverage
+          command: cat ./coverage/lcov.info | ./node_modules/.bin/coveralls
       - run:
           name: JavaScript End-to-End Test Suite
           command: node ./scripts/run-ci-e2e-tests.js --js --retries 3;
@@ -345,6 +354,8 @@ jobs:
           name: Boot iPhone Simulator
           command: source scripts/.tests.env && xcrun simctl boot "$IOS_DEVICE" || true
 
+      - run: sudo gem install xcov
+
       - restore-cache: *restore-brew-cache
       - run:
           name: Install Watchman
@@ -358,12 +369,12 @@ jobs:
           command: ./scripts/objc-test-ios.sh test
 
       - run:
-          name: Run iOS End-to-End Tests
-          command: node ./scripts/run-ci-e2e-tests.js --ios --retries 3;
+          name: Collect code coverage
+          command: xcov -p React/React.xcproject -s React -o build --coveralls_repo_token "$COVERALLS_REPO_TOKEN"
 
       - run:
-          name: Collect code coverage
-          command: xcov -p ./React/React.xcproject -s React -o ./build --coveralls_repo_token "$COVERALLS_REPO_TOKEN"
+          name: Run iOS End-to-End Tests
+          command: node ./scripts/run-ci-e2e-tests.js --ios --retries 3;
 
       - store_test_results:
           path: ~/react-native/reports/junit
