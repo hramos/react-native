@@ -370,7 +370,7 @@ jobs:
 
       - run:
           name: Collect code coverage
-          command: xcov -p React/React.xcproject -s React -o build --coveralls_repo_token "$COVERALLS_REPO_TOKEN"
+          command: xcov -p React/React.xcodeproj -s React -o build --coveralls_repo_token "$COVERALLS_REPO_TOKEN"
 
       - run:
           name: Run iOS End-to-End Tests
