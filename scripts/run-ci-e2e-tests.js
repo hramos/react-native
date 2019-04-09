@@ -43,10 +43,14 @@ let exitCode;
 // Make sure we installed local version of react-native
 function checkMarker() {
   if (!test('-e', path.basename(MARKER))) {
-    echo('Marker was not found, react native init command failed?');
+    echo('Marker was not found, template copy failed?');
     exitCode = 1;
     throw Error(exitCode);
   }
+}
+
+function describe(message) {
+  echo(`\n\n>>>>> ${message}\n\n\n`);
 }
 
 try {
@@ -81,28 +85,61 @@ try {
 
   const PACKAGE = path.join(ROOT, 'react-native-*.tgz');
   cd(TEMP);
+
+  describe('Creating a basic React Native app from template');
+  const E2E_APP_ROOT = path.join(TEMP, 'template');
+  cp('-R', path.join(ROOT, 'template'), E2E_APP_ROOT);
+
+  cd(E2E_APP_ROOT);
+  ls(E2E_APP_ROOT)
+    .filter(function(file) {
+      return file !== '__tests__' && file.match(/^_.*$/);
+    })
+    .forEach(function(src) {
+      const dst = path.join(E2E_APP_ROOT, src.replace(/^_/, '.'));
+      mv(src, dst);
+    });
+
+  sed('-i', 'HelloWorld', 'test-template', 'package.json');
+
+  describe('Installing React Native packages');
+  exec(`npm install ${PACKAGE}`);
   if (
     tryExecNTimes(
       () => {
         exec('sleep 10s');
-        return exec(`react-native init EndToEndTest --version ${PACKAGE}`).code;
+        return exec('npm install --save-dev flow-bin').code;
       },
       numberOfRetries,
-      () => rm('-rf', 'EndToEndTest'),
+      () => rm('-rf', E2E_APP_ROOT),
     )
   ) {
-    echo('Failed to execute react-native init');
+    echo('Failed to install Flow');
     echo('Most common reason is npm registry connectivity, try again');
     exitCode = 1;
     throw Error(exitCode);
   }
 
-  cd('EndToEndTest');
+  if (
+    tryExecNTimes(
+      () => {
+        exec('sleep 10s');
+        return exec('npm install').code;
+      },
+      numberOfRetries,
+      () => rm('-rf', E2E_APP_ROOT),
+    )
+  ) {
+    echo('Failed to execute npm install');
+    echo('Most common reason is npm registry connectivity, try again');
+    exitCode = 1;
+    throw Error(exitCode);
+  }
 
   if (argv.android) {
-    echo('Running an Android end-to-end test');
+    describe('Running an Android end-to-end test');
     checkMarker();
-    echo('Installing end-to-end framework');
+    describe('Installing end-to-end framework');
     if (
       tryExecNTimes(
         () =>
@@ -120,7 +157,7 @@ try {
     }
     cp(`${SCRIPTS}/android-e2e-test.js`, 'android-e2e-test.js');
     cd('android');
-    echo('Downloading Maven deps');
+    describe('Downloading Maven deps');
     exec('./gradlew :app:copyDownloadableDepsToLibs');
     cd('..');
 
@@ -135,18 +172,18 @@ try {
       throw Error(exitCode);
     }
 
-    echo(`Starting appium server, ${APPIUM_PID}`);
+    describe(`Starting appium server, ${APPIUM_PID}`);
     const appiumProcess = spawn('node', ['./node_modules/.bin/appium']);
     APPIUM_PID = appiumProcess.pid;
 
-    echo('Building the app');
+    describe('Building the app');
     if (exec('react-native run-android').code) {
       echo('could not execute react-native run-android');
       exitCode = 1;
       throw Error(exitCode);
     }
 
-    echo(`Starting packager server, ${SERVER_PID}`);
+    describe(`Starting packager server, ${SERVER_PID}`);
     // shelljs exec('', {async: true}) does not emit stdout events, so we rely on good old spawn
     const packagerProcess = spawn('yarn', ['start', '--max-workers 1'], {
       env: process.env,
@@ -154,7 +191,7 @@ try {
     SERVER_PID = packagerProcess.pid;
     // wait a bit to allow packager to startup
     exec('sleep 15s');
-    echo('Executing android end-to-end test');
+    describe('Executing android end-to-end test');
     if (
       tryExecNTimes(() => {
         exec('sleep 10s');
@@ -171,7 +208,7 @@ try {
   if (argv.ios || argv.tvos) {
     checkMarker();
     var iosTestType = argv.tvos ? 'tvOS' : 'iOS';
-    echo('Running the ' + iosTestType + ' app');
+    describe('Running the ' + iosTestType + ' app');
     cd('ios');
     // shelljs exec('', {async: true}) does not emit stdout events, so we rely on good old spawn
     const packagerEnv = Object.create(process.env);
@@ -186,10 +223,10 @@ try {
     exec(
       'response=$(curl --write-out %{http_code} --silent --output /dev/null localhost:8081/index.bundle?platform=ios&dev=true)',
     );
-    echo(`Starting packager server, ${SERVER_PID}`);
-    echo('Running pod install');
+    describe(`Starting packager server, ${SERVER_PID}`);
+    describe('Running pod install');
     exec('pod install');
-    echo('Executing ' + iosTestType + ' end-to-end test');
+    describe('Executing ' + iosTestType + ' end-to-end test');
     if (
       tryExecNTimes(() => {
         exec('sleep 10s');
@@ -265,14 +302,14 @@ try {
   rm(MARKER);
 
   if (SERVER_PID) {
-    echo(`Killing packager ${SERVER_PID}`);
+    describe(`Killing packager ${SERVER_PID}`);
     exec(`kill -9 ${SERVER_PID}`);
     // this is quite drastic but packager starts a daemon that we can't kill by killing the parent process
     // it will be fixed in April (quote David Aurelio), so until then we will kill the zombie by the port number
     exec("lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill");
   }
   if (APPIUM_PID) {
-    echo(`Killing appium ${APPIUM_PID}`);
+    describe(`Killing appium ${APPIUM_PID}`);
     exec(`kill -9 ${APPIUM_PID}`);
   }
 }
