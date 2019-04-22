@@ -209,7 +209,7 @@ try {
     });
     SERVER_PID = packagerProcess.pid;
     exec('sleep 15s');
-    // prepare cache to reduce chances of possible red screen "Can't fibd variable __fbBatchedBridge..."
+    // prepare cache to reduce chances of possible red screen "Can't find variable __fbBatchedBridge..."
     exec(
       'response=$(curl --write-out %{http_code} --silent --output /dev/null localhost:8081/index.bundle?platform=ios&dev=true)',
     );
@@ -220,7 +220,7 @@ try {
     if (
       tryExecNTimes(
         () => {
-          let destination = 'platform=iOS Simulator,name=iPhone 6s,OS=12.1';
+          let destination = 'platform=iOS Simulator,name=iPhone 6s,OS=12.2';
           let sdk = 'iphonesimulator';
           let scheme = 'EndToEndTest';
 
