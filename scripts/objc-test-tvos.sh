@@ -5,13 +5,9 @@
 # LICENSE file in the root directory of this source tree.
 #
 # Script used to run tvOS tests.
-# If no arguments are passed to the script, it will only compile
-# the RNTester.
-# If the script is called with a single argument "test", we'll
-# also run the RNTester integration test (needs JS and packager):
-# ./objc-test-tvos.sh test
+# ./objc-test-tvos.sh
 
-set -ex
+set -e
 
 SCRIPTS=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT=$(dirname "$SCRIPTS")
@@ -19,13 +15,4 @@ ROOT=$(dirname "$SCRIPTS")
 cd "$ROOT"
 
 # shellcheck disable=SC1091
-source "scripts/.tests.env"
-
-export TEST_NAME="tvOS"
-export SCHEME="RNTester-tvOS"
-export SDK="appletvsimulator"
-export DESTINATION="platform=tvOS Simulator,name=${TVOS_DEVICE},OS=${IOS_TARGET_OS}"
-export USE_MODERN_BUILD_SYSTEM="NO"
-
-# If there's a "test" argument, pass it to the test script.
-./scripts/objc-test.sh $1
+source "scripts/objc-test.sh" && run_tvos_tests

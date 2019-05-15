@@ -4,16 +4,18 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 #
-# Script used to run iOS and tvOS tests.
-# Environment variables are used to configure what test to run.
-# If not arguments are passed to the script, it will only compile
-# the RNTester.
-# If the script is called with a single argument "test", we'll
-# also run the RNTester integration test (needs JS and packager).
-# ./objc-test.sh test
+# Script used to set up and run iOS or tvOS tests.
+# source ./objc-test.sh && run_ios_tests
+# source ./objc-test.sh && run_tvos_tests
+
+set -e
 
 SCRIPTS=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 ROOT=$(dirname "$SCRIPTS")
+
+describe () {
+  printf "\\n\\n>>>>> %s\\n\\n\\n" "$1"
+}
 
 # Create cleanup handler
 cleanup() {
@@ -25,14 +27,22 @@ cleanup() {
     WATCHMAN_LOGS=/usr/local/Cellar/watchman/3.1/var/run/watchman/$USER.log
     [ -f "$WATCHMAN_LOGS" ] && cat "$WATCHMAN_LOGS"
   fi
-  # kill whatever is occupying port 8081 (packager)
-  lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
-  # kill whatever is occupying port 5555 (web socket server)
-  lsof -i tcp:5555 | awk 'NR!=1 {print $2}' | xargs kill
+  stop_services
 }
 
-# Wait for the package to start
-waitForPackager() {
+boot_ios_simulator() {
+  source "$SCRIPTS/.tests.env" && xcrun simctl boot "$IOS_DEVICE"
+}
+
+boot_tvos_simulator() {
+  source "$SCRIPTS/.tests.env" && xcrun simctl boot "$TVOS_DEVICE"
+}
+
+start_packager() {
+  yarn start --max-workers=1 || echo "Can't start packager automatically" &
+}
+
+wait_for_packager() {
   local -i max_attempts=60
   local -i attempt_num=1
 
@@ -50,26 +60,31 @@ waitForPackager() {
   echo "Packager is ready!"
 }
 
-runTests() {
-  xcodebuild \
-    -project "RNTester/RNTester.xcodeproj" \
-    -scheme "$SCHEME" \
-    -sdk "$SDK" \
-    -destination "$DESTINATION" \
-    -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
-    build test
+preload_bundles() {
+  describe "Preload the RNTesterApp bundle for better performance in integration tests"
+  curl -s "http://localhost:8081/${RN_BUNDLE_PREFIX}RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true" -o /dev/null
+  curl -s "http://localhost:8081/${RN_BUNDLE_PREFIX}RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true&minify=false" -o /dev/null
+  curl -s "http://localhost:8081/${RN_BUNDLE_PREFIX}IntegrationTests/IntegrationTestsApp.bundle?platform=ios&dev=true" -o /dev/null
+  curl -s "http://localhost:8081/${RN_BUNDLE_PREFIX}IntegrationTests/RCTRootViewIntegrationTestApp.bundle?platform=ios&dev=true" -o /dev/null
 }
 
-buildProject() {
-  xcodebuild \
-    -project "RNTester/RNTester.xcodeproj" \
-    -scheme "$SCHEME" \
-    -sdk "$SDK" \
-    -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
-    build
+start_websocket_server() {
+  open "./IntegrationTests/launchWebSocketServer.command" || echo "Can't start web socket server automatically"
 }
 
-xcprettyFormat() {
+stop_services() {
+  # kill whatever is occupying port 8081 (packager)
+  if lsof -i tcp:8081 > /dev/null 2>&1; then
+   lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
+  fi
+
+  # kill whatever is occupying port 5555 (web socket server)
+  if lsof -i tcp:5555 > /dev/null 2>&1; then
+    lsof -i tcp:5555 | awk 'NR!=1 {print $2}' | xargs kill
+  fi
+}
+
+xcpretty_format() {
   if [ "$CI" ]; then
     # Circle CI expects JUnit reports to be available here
     REPORTS_DIR="$HOME/react-native/reports"
@@ -83,45 +98,148 @@ xcprettyFormat() {
   xcpretty --report junit --output "$REPORTS_DIR/junit/$TEST_NAME/results.xml"
 }
 
-preloadBundles() {
-  # Preload the RNTesterApp bundle for better performance in integration tests
-  curl -s 'http://localhost:8081/RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true' -o /dev/null
-  curl -s 'http://localhost:8081/RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true&minify=false' -o /dev/null
-  curl -s 'http://localhost:8081/IntegrationTests/IntegrationTestsApp.bundle?platform=ios&dev=true' -o /dev/null
-  curl -s 'http://localhost:8081/IntegrationTests/RCTRootViewIntegrationTestApp.bundle?platform=ios&dev=true' -o /dev/null
-}
-
-main() {
-  cd "$ROOT" || exit
-
-  # If first argument is "test", actually start the packager and run tests.
-  # Otherwise, just build RNTester and exit
-  if [ "$1" = "test" ]; then
-
-    # Start the packager
-    yarn start --max-workers=1 || echo "Can't start packager automatically" &
-    # Start the WebSocket test server
-    open "./IntegrationTests/launchWebSocketServer.command" || echo "Can't start web socket server automatically"
-
-    waitForPackager
-    preloadBundles
-
-    # Build and run tests.
-    if [ -x "$(command -v xcpretty)" ]; then
-      runTests | xcprettyFormat && exit "${PIPESTATUS[0]}"
-    else
-      echo 'Warning: xcpretty is not installed. Install xcpretty to generate JUnit reports.'
-      runTests
-    fi
-  else
-    # Build without running tests.
-    if [ -x "$(command -v xcpretty)" ]; then
-      buildProject | xcprettyFormat && exit "${PIPESTATUS[0]}"
-    else
-      buildProject
-    fi
+verify_xcodebuild_dependency() {
+  if [ ! -x "$(command -v xcodebuild)" ]; then
+    echo 'Error: xcodebuild is not installed. Install the Xcode Command Line Tools before running $TEST_NAME tests.'
+    exit 1
   fi
 }
 
-trap cleanup EXIT
-main "$@"
+xcodebuild_build() {
+  verify_xcodebuild_dependency
+
+  describe "Building RNTester"
+  xcodebuild \
+    -project "RNTester/RNTester.xcodeproj" \
+    -scheme "$SCHEME" \
+    -sdk "$SDK" \
+    -destination "$DESTINATION" \
+    -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
+    build
+}
+
+xcodebuild_build_and_analyze() {
+  verify_xcodebuild_dependency
+  describe "Analyzing RNTester"
+  xcodebuild \
+    -project "RNTester/RNTester.xcodeproj" \
+    -scheme "$SCHEME" \
+    -sdk "$SDK" \
+    -destination "$DESTINATION" \
+    -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
+    build analyze
+}
+
+xcodebuild_build_and_test() {
+  verify_xcodebuild_dependency
+  describe "Running all RNTester tests"
+  xcodebuild \
+    -project "RNTester/RNTester.xcodeproj" \
+    -scheme "$SCHEME" \
+    -sdk "$SDK" \
+    -destination "$DESTINATION" \
+    -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
+    "${EXTRA_ARGS[@]}" \
+    build test
+}
+
+xcodebuild_build_xcpretty() {
+  if [ -x "$(command -v xcpretty)" ]; then
+    xcodebuild_build | xcpretty_format
+    if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+      echo "Failed to build RNTester."
+      exit "${PIPESTATUS[0]}"
+    fi
+  else
+    xcodebuild_build
+  fi
+}
+
+xcodebuild_build_and_analyze_xcpretty() {
+  if [ -x "$(command -v xcpretty)" ]; then
+    xcodebuild_build_and_analyze | xcpretty_format && exit "${PIPESTATUS[0]}"
+  else
+    xcodebuild_build_and_analyze
+  fi
+}
+
+xcodebuild_build_and_test_xcpretty() {
+  if [ -x "$(command -v xcpretty)" ]; then
+    xcodebuild_build_and_test | xcpretty_format && exit "${PIPESTATUS[0]}"
+  else
+    xcodebuild_build_and_test
+  fi
+}
+
+configure_for_ios() {
+  TEST_NAME="iOS"
+  SCHEME="RNTester"
+  SDK="iphonesimulator"
+  USE_MODERN_BUILD_SYSTEM="NO"
+
+  # shellcheck disable=SC1091
+  source "$SCRIPTS/.tests.env"
+  DESTINATION="platform=iOS Simulator,name=${IOS_DEVICE},OS=${IOS_TARGET_OS}"
+}
+
+configure_for_tvos() {
+  TEST_NAME="tvOS"
+  SCHEME="RNTester-tvOS"
+  SDK="appletvsimulator"
+  USE_MODERN_BUILD_SYSTEM="NO"
+
+  # shellcheck disable=SC1091
+  source "$SCRIPTS/.tests.env"
+  DESTINATION="platform=tvOS Simulator,name=${TVOS_DEVICE},OS=${IOS_TARGET_OS}"
+}
+
+build_rntester_ios() {
+  trap cleanup EXIT
+  cd "$ROOT" || exit
+
+  configure_for_ios
+  xcodebuild_build_xcpretty
+}
+
+run_ios_tests() {
+  trap cleanup EXIT
+  cd "$ROOT" || exit
+
+  configure_for_ios
+  xcodebuild_build_xcpretty
+  start_packager
+  start_websocket_server
+  wait_for_packager
+  preload_bundles
+  xcodebuild_build_and_test_xcpretty
+}
+
+run_rntester_unit_tests() {
+  EXTRA_ARGS=()
+  EXTRA_ARGS+=('-only-testing:RNTesterUnitTests')
+  export EXTRA_ARGS
+
+  run_ios_tests
+}
+
+run_rntester_integration_tests() {
+  EXTRA_ARGS=()
+  EXTRA_ARGS+=('-only-testing:RNTesterIntegrationTests')
+  export EXTRA_ARGS
+
+  run_ios_tests
+}
+
+
+run_tvos_tests() {
+  trap cleanup EXIT
+  cd "$ROOT" || exit
+
+  configure_for_tvos
+  xcodebuild_build_xcpretty
+  start_packager
+  start_websocket_server
+  wait_for_packager
+  preload_bundles
+  xcodebuild_build_and_test_xcpretty
+}
