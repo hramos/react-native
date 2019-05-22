@@ -1,3 +1,29 @@
+version: 2.1
+
+# -------------------------
+#        COMMANDS
+# -------------------------
+commands:
+  with_job_span:
+    parameters:
+      steps:
+        type: steps
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: starting span for job
+          command: |
+            echo "STEP_START=$(date +%s)" >> $BASH_ENV
+            echo "STEP_SPAN_ID=$(echo $CIRCLE_JOB | sum | cut -f 1 -d \ )" >> $BASH_ENV
+      - run: |
+          echo "PATH=$PATH:buildevents/bin/" >> $BASH_ENV
+      - steps: << parameters.steps >>
+      - run:
+          name: finishing span for job
+          command: buildevents step $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID $STEP_START $CIRCLE_JOB
+          when: always
+
 # -------------------------
 #        ALIASES
 # -------------------------
@@ -131,14 +157,6 @@ aliases:
     branches:
       only: /^pull\/.*$/
 
-  # -------------------------
-  #     ALIASES: Workflows
-  # -------------------------
-  - &run-after-checkout
-    filters: *filter-ignore-gh-pages
-    requires:
-      - checkout_code
-
 # -------------------------
 #        DEFAULTS
 # -------------------------
@@ -175,22 +193,41 @@ macos_defaults: &macos_defaults
 # -------------------------
 #          JOBS
 # -------------------------
-version: 2
 jobs:
-  # Set up a Node environment for downstream jobs
-  checkout_code:
+  setup:
     <<: *js_defaults
     steps:
       - checkout
+      - run: |
+          mkdir -p buildevents/bin
+          curl -L -o buildevents/bin/buildevents https://github.com/honeycombio/buildevents/releases/latest/download/buildevents
+          chmod 755 buildevents/bin/buildevents
+          date +%s > buildevents/build_start
       - run: *setup-artifacts
-
-      - restore-cache: *restore-yarn-cache
+      - restore_cache: *restore-yarn-cache
       - run: *yarn
-      - save-cache: *save-yarn-cache
+      - save_cache: *save-yarn-cache
 
       - persist_to_workspace:
-          root: .
-          paths: .
+          root: ~/
+          paths:
+            - react-native
+            - buildevents
+
+      # - persist_to_workspace:
+      #     root: buildevents
+      #     paths:
+      #       - build_start
+      #       - bin/buildevents
+  final:
+    docker:
+      - image: circleci/golang:1.10
+    steps:
+      - attach_workspace:
+          at: ~/
+      - run: |
+          BUILD_START=$(cat buildevents/build_start)
+          buildevents build $CIRCLE_WORKFLOW_ID $BUILD_START success
 
   # -------------------------
   #     JOBS: Analyze PR
@@ -213,7 +250,7 @@ jobs:
       - checkout
       - run: *setup-artifacts
 
-      - restore-cache: *restore-yarn-cache
+      - restore_cache: *restore-yarn-cache
       - run: *yarn
       - run:
           name: Install dependencies
@@ -222,7 +259,7 @@ jobs:
             apt install -y shellcheck jq
             cd bots
             yarn install --non-interactive --cache-folder ~/.cache/yarn
-      - save-cache: *save-yarn-cache
+      - save_cache: *save-yarn-cache
 
       - run:
           name: Run linters against modified files (analysis-bot)
@@ -243,40 +280,42 @@ jobs:
   analyze:
     <<: *js_defaults
     steps:
-      - attach_workspace:
-          at: ~/react-native
+      - with_job_span:
+          steps:
+            - attach_workspace:
+                at: ~/
 
-      - run:
-          name: Lint code
-          command: scripts/circleci/exec_swallow_error.sh yarn lint --format junit -o ~/react-native/reports/junit/eslint/results.xml
-          when: always
+            - run:
+                name: Lint code
+                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID lint -- scripts/circleci/exec_swallow_error.sh yarn lint --format junit -o ~/react-native/reports/junit/eslint/results.xml
+                when: always
 
-      - run:
-          name: Check for errors in code using Flow (iOS)
-          command: yarn flow-check-ios
-          when: always
+            - run:
+                name: Check for errors in code using Flow (iOS)
+                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID flow-check-ios -- yarn flow-check-ios
+                when: always
 
-      - run:
-          name: Check for errors in code using Flow (Android)
-          command: yarn flow-check-android
-          when: always
+            - run:
+                name: Check for errors in code using Flow (Android)
+                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID flow-check-android -- yarn flow-check-android
+                when: always
 
-      - run:
-          name: Sanity checks
-          command: |
-            ./scripts/circleci/check_license.sh
-            ./scripts/circleci/validate_yarn_lockfile.sh
-          when: always
+            - run:
+                name: Sanity checks
+                command: |
+                  ./scripts/circleci/check_license.sh
+                  ./scripts/circleci/validate_yarn_lockfile.sh
+                when: always
 
-      - run:
-          name: Check formatting
-          command: yarn run format-check
-          when: always
+            - run:
+                name: Check formatting
+                command: yarn run format-check
+                when: always
 
-      - store_test_results:
-          path: ~/react-native/reports/junit
-      - store_artifacts:
-          path: ~/react-native/yarn.lock
+            - store_test_results:
+                path: ~/react-native/reports/junit
+            - store_artifacts:
+                path: ~/react-native/yarn.lock
 
   # -------------------------
   #   JOBS: Test JavaScript
@@ -285,15 +324,17 @@ jobs:
   test_javascript:
     <<: *js_defaults
     steps:
-      - attach_workspace:
-          at: ~/react-native
+      - with_job_span:
+          steps:
+            - attach_workspace:
+                at: ~/
 
-      - run:
-          name: JavaScript Test Suite
-          command: node ./scripts/run-ci-javascript-tests.js --maxWorkers 2
+            - run:
+                name: JavaScript Test Suite
+                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-js -- node ./scripts/run-ci-javascript-tests.js --maxWorkers 2
 
-      - store_test_results:
-          path: ~/react-native/reports/junit
+            - store_test_results:
+                path: ~/react-native/reports/junit
 
   # Run JavaScript tests on Node LTS
   test_node_lts:
@@ -322,183 +363,187 @@ jobs:
     environment:
       - REPORTS_DIR: "./reports"
     steps:
-      - attach_workspace:
-          at: ~/react-native
+      - with_job_span:
+          steps:
+            - attach_workspace:
+                at: ~/
 
-      - run:
-          name: Print Xcode environment
-          command: xcodebuild -version
+            - run:
+                name: Print Xcode environment
+                command: xcodebuild -version
 
-      - run:
-          name: List available devices
-          command: instruments -s devices
+            - run:
+                name: List available devices
+                command: instruments -s devices
 
-      - run:
-          name: Boot iOS Simulator
-          command: source scripts/.tests.env && xcrun simctl boot "$IOS_DEVICE" || true
+            - run:
+                name: Boot iOS Simulator
+                command: source scripts/.tests.env && xcrun simctl boot "$IOS_DEVICE" || true
 
-      - restore-cache: *restore-brew-cache
-      - run:
-          name: Install Watchman
-          command: |
-            HOMEBREW_NO_AUTO_UPDATE=1 brew install watchman >/dev/null
-            touch .watchmanconfig
-      - save-cache: *save-brew-cache
+            - restore_cache: *restore-brew-cache
+            - run:
+                name: Install Watchman
+                command: |
+                  HOMEBREW_NO_AUTO_UPDATE=1 brew install watchman >/dev/null
+                  touch .watchmanconfig
+            - save_cache: *save-brew-cache
 
-      - run:
-          name: Start Metro packager
-          command: yarn start --max-workers=1 || echo "Can't start packager automatically"
-          background: true
+            - run:
+                name: Start Metro packager
+                command: yarn start --max-workers=1 || echo "Can't start packager automatically"
+                background: true
 
-      - run:
-          name: Start WebSocket test server
-          command: open "./IntegrationTests/launchWebSocketServer.command" || echo "Can't start web socket server automatically"
-          background: true
+            - run:
+                name: Start WebSocket test server
+                command: open "./IntegrationTests/launchWebSocketServer.command" || echo "Can't start web socket server automatically"
+                background: true
 
-      - run:
-          name: Verify RNTester can be built
-          command: |
-            source ./scripts/.tests.env
-            xcodebuild \
-              -project RNTester/RNTester.xcodeproj \
-              -scheme RNTester \
-              -sdk iphonesimulator \
-              -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
-              -UseModernBuildSystem=NO \
-              build | \
-            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_buiild/results.xml" && \
-            exit "${PIPESTATUS[0]}"
+            - run:
+                name: Verify RNTester can be built
+                command: |
+                  source ./scripts/.tests.env
+                  xcodebuild \
+                    -project RNTester/RNTester.xcodeproj \
+                    -scheme RNTester \
+                    -sdk iphonesimulator \
+                    -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
+                    -UseModernBuildSystem=NO \
+                    build | \
+                  xcpretty --report junit --output "$REPORTS_DIR/junit/ios_buiild/results.xml" && \
+                  exit "${PIPESTATUS[0]}"
 
-      - run:
-          name: Wait for Metro packager
-          command: |
-            max_attempts=60
-            attempt_num=1
-            until curl -s http://localhost:8081/status | grep "packager-status:running" -q; do
-              if (( attempt_num == max_attempts )); then
-                echo "Packager did not respond in time. No more attempts left."
-                exit 1
-              else
-                (( attempt_num++ ))
-                echo "Packager did not respond. Retrying for attempt number $attempt_num..."
-                sleep 1
-              fi
-            done
-            echo "Packager is ready!"
+            - run:
+                name: Wait for Metro packager
+                command: |
+                  max_attempts=60
+                  attempt_num=1
+                  until curl -s http://localhost:8081/status | grep "packager-status:running" -q; do
+                    if (( attempt_num == max_attempts )); then
+                      echo "Packager did not respond in time. No more attempts left."
+                      exit 1
+                    else
+                      (( attempt_num++ ))
+                      echo "Packager did not respond. Retrying for attempt number $attempt_num..."
+                      sleep 1
+                    fi
+                  done
+                  echo "Packager is ready!"
 
-      - run:
-          name: Preload the RNTesterApp bundles
-          command: |
-            curl --silent 'http://localhost:8081/RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true' --output /dev/null
-            curl --silent 'http://localhost:8081/RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true&minify=false' --output /dev/null
-            curl --silent 'http://localhost:8081/IntegrationTests/IntegrationTestsApp.bundle?platform=ios&dev=true' --output /dev/null
-            curl --silent 'http://localhost:8081/IntegrationTests/RCTRootViewIntegrationTestApp.bundle?platform=ios&dev=true' --output /dev/null
+            - run:
+                name: Preload the RNTesterApp bundles
+                command: |
+                  curl --silent 'http://localhost:8081/RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true' --output /dev/null
+                  curl --silent 'http://localhost:8081/RNTester/js/RNTesterApp.ios.bundle?platform=ios&dev=true&minify=false' --output /dev/null
+                  curl --silent 'http://localhost:8081/IntegrationTests/IntegrationTestsApp.bundle?platform=ios&dev=true' --output /dev/null
+                  curl --silent 'http://localhost:8081/IntegrationTests/RCTRootViewIntegrationTestApp.bundle?platform=ios&dev=true' --output /dev/null
 
-      - run:
-          name: Run RNTester Unit Tests
-          command: |
-            source ./scripts/.tests.env
-            xcodebuild \
-              -project RNTester/RNTester.xcodeproj \
-              -scheme RNTester \
-              -sdk iphonesimulator \
-              -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
-              -UseModernBuildSystem=NO \
-              -only-testing:RNTesterUnitTests \
-              build test | \
-            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_unit_tests/results.xml" && \
-            exit "${PIPESTATUS[0]}"
+            - run:
+                name: Run RNTester Unit Tests
+                command: |
+                  source ./scripts/.tests.env
+                  xcodebuild \
+                    -project RNTester/RNTester.xcodeproj \
+                    -scheme RNTester \
+                    -sdk iphonesimulator \
+                    -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
+                    -UseModernBuildSystem=NO \
+                    -only-testing:RNTesterUnitTests \
+                    build test | \
+                  xcpretty --report junit --output "$REPORTS_DIR/junit/ios_unit_tests/results.xml" && \
+                  exit "${PIPESTATUS[0]}"
 
-      - run:
-          name: Run RNTester Integration Tests
-          command: |
-            source ./scripts/.tests.env
-            xcodebuild \
-              -project RNTester/RNTester.xcodeproj \
-              -scheme RNTester \
-              -sdk iphonesimulator \
-              -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
-              -UseModernBuildSystem=NO \
-              -only-testing:RNTesterIntegrationTests \
-              build test | \
-            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_integration_tests/results.xml" && \
-            exit "${PIPESTATUS[0]}"
+            - run:
+                name: Run RNTester Integration Tests
+                command: |
+                  source ./scripts/.tests.env
+                  xcodebuild \
+                    -project RNTester/RNTester.xcodeproj \
+                    -scheme RNTester \
+                    -sdk iphonesimulator \
+                    -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
+                    -UseModernBuildSystem=NO \
+                    -only-testing:RNTesterIntegrationTests \
+                    build test | \
+                  xcpretty --report junit --output "$REPORTS_DIR/junit/ios_integration_tests/results.xml" && \
+                  exit "${PIPESTATUS[0]}"
 
-      - run:
-          name: Stop Metro packager and WebSocket test server
-          command: |
-            # kill whatever is occupying port 8081 (packager)
-            lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
-            # kill whatever is occupying port 5555 (web socket server)
-            lsof -i tcp:5555 | awk 'NR!=1 {print $2}' | xargs kill
+            - run:
+                name: Stop Metro packager and WebSocket test server
+                command: |
+                  # kill whatever is occupying port 8081 (packager)
+                  lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
+                  # kill whatever is occupying port 5555 (web socket server)
+                  lsof -i tcp:5555 | awk 'NR!=1 {print $2}' | xargs kill
 
-      - store_test_results:
-          path: ~/react-native/reports/junit
+            - store_test_results:
+                path: ~/react-native/reports/junit
 
   # Runs end-to-end tests
   test_end_to_end:
     <<: *macos_defaults
     steps:
-      - attach_workspace:
-          at: ~/react-native
+      - with_job_span:
+          steps:
+            - attach_workspace:
+                at: ~/
 
-      - run:
-          name: Boot iPhone Simulator
-          command: source scripts/.tests.env && xcrun simctl boot "$IOS_DEVICE" || true
+            - run:
+                name: Boot iPhone Simulator
+                command: source scripts/.tests.env && xcrun simctl boot "$IOS_DEVICE" || true
 
-      - run:
-          name: Configure Environment Variables
-          command: |
-            echo 'export PATH=/usr/local/opt/node@8/bin:$PATH' >> $BASH_ENV
-            source $BASH_ENV
+            - run:
+                name: Configure Environment Variables
+                command: |
+                  echo 'export PATH=/usr/local/opt/node@8/bin:$PATH' >> $BASH_ENV
+                  source $BASH_ENV
 
-      # Brew
-      - restore-cache: *restore-brew-cache
-      - run:
-          name: Configure Detox Environment
-          command: |
-            HOMEBREW_NO_AUTO_UPDATE=1 brew install node@8 >/dev/null
-            HOMEBREW_NO_AUTO_UPDATE=1 brew tap wix/brew >/dev/null
-            HOMEBREW_NO_AUTO_UPDATE=1 brew install applesimutils >/dev/null
-            touch .watchmanconfig
-            node -v
-      - save-cache: *save-brew-cache
+            # Brew
+            - restore_cache: *restore-brew-cache
+            - run:
+                name: Configure Detox Environment
+                command: |
+                  HOMEBREW_NO_AUTO_UPDATE=1 brew install node@8 >/dev/null
+                  HOMEBREW_NO_AUTO_UPDATE=1 brew tap wix/brew >/dev/null
+                  HOMEBREW_NO_AUTO_UPDATE=1 brew install applesimutils >/dev/null
+                  touch .watchmanconfig
+                  node -v
+            - save_cache: *save-brew-cache
 
-      # Yarn install
-      - restore-cache: *restore-yarn-cache
-      - run: *yarn
-      - save-cache: *save-yarn-cache
+            # Yarn install
+            - restore_cache: *restore-yarn-cache
+            - run: *yarn
+            - save_cache: *save-yarn-cache
 
-      # Xcode build
-      - run:
-          name: Build app for Detox iOS End-to-End Tests
-          command: yarn run build-ios-e2e
+            # Xcode build
+            - run:
+                name: Build app for Detox iOS End-to-End Tests
+                command: yarn run build-ios-e2e
 
-      # Test
-      - run:
-          name: Run Detox iOS End-to-End Tests
-          command: yarn run test-ios-e2e
-          when: always
+            # Test
+            - run:
+                name: Run Detox iOS End-to-End Tests
+                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-detox-ios -- yarn run test-ios-e2e
+                when: always
 
-      - run:
-          name: Run JavaScript End-to-End Tests
-          command: |
-            # free up port 8081 for the packager before running tests
-            set +eo pipefail
-            lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
-            set -eo pipefail
-            node ./scripts/run-ci-e2e-tests.js --js --retries 3
-          when: always
+            - run:
+                name: Run JavaScript End-to-End Tests
+                command: |
+                  # free up port 8081 for the packager before running tests
+                  set +eo pipefail
+                  lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
+                  set -eo pipefail
+                  buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-js-e2e -- node ./scripts/run-ci-e2e-tests.js --js --retries 3
+                when: always
 
-      - run:
-          name: Run iOS End-to-End Tests
-          command: |
-            # free up port 8081 for the packager before running tests
-            set +eo pipefail
-            lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
-            set -eo pipefail
-            node ./scripts/run-ci-e2e-tests.js --ios --retries 3;
-          when: always
+            - run:
+                name: Run iOS End-to-End Tests
+                command: |
+                  # free up port 8081 for the packager before running tests
+                  set +eo pipefail
+                  lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
+                  set -eo pipefail
+                  buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-ios-e2e -- node ./scripts/run-ci-e2e-tests.js --ios --retries 3;
+                when: always
 
   # -------------------------
   #    JOBS: Test Android
@@ -507,102 +552,104 @@ jobs:
   test_android:
     <<: *android_defaults
     steps:
-      - attach_workspace:
-          at: ~/react-native
+      - with_job_span:
+          steps:
+            - attach_workspace:
+                at: ~/
 
-      # Validate Android SDK installation and packages
-      - run:
-          name: Validate Android SDK Install
-          command: ./scripts/validate-android-sdk.sh
+            # Validate Android SDK installation and packages
+            - run:
+                name: Validate Android SDK Install
+                command: ./scripts/validate-android-sdk.sh
 
-      # Starting emulator in advance as it takes some time to boot.
-      - run:
-          name: Create Android Virtual Device
-          command: source scripts/android-setup.sh && createAVD
-      - run:
-          name: Launch Android Virtual Device in Background
-          command: source scripts/android-setup.sh && launchAVD
-          background: true
+            # Starting emulator in advance as it takes some time to boot.
+            - run:
+                name: Create Android Virtual Device
+                command: source scripts/android-setup.sh && createAVD
+            - run:
+                name: Launch Android Virtual Device in Background
+                command: source scripts/android-setup.sh && launchAVD
+                background: true
 
-      # Keep configuring Android dependencies while AVD boots up
+            # Keep configuring Android dependencies while AVD boots up
 
-      # Install Buck
-      - restore-cache: *restore-buck-downloads-cache
-      - run:
-          name: Install BUCK
-          command: |
-            buck --version
-            # Install related tooling
-            if [[ ! -e ~/okbuck ]]; then
-              git clone https://github.com/uber/okbuck.git ~/okbuck --depth=1
-            fi
-            mkdir -p ~/react-native/tooling/junit
-            cp -R ~/okbuck/tooling/junit/* ~/react-native/tooling/junit/.
-      - save-cache: *save-buck-downloads-cache
+            # Install Buck
+            - restore_cache: *restore-buck-downloads-cache
+            - run:
+                name: Install BUCK
+                command: |
+                  buck --version
+                  # Install related tooling
+                  if [[ ! -e ~/okbuck ]]; then
+                    git clone https://github.com/uber/okbuck.git ~/okbuck --depth=1
+                  fi
+                  mkdir -p ~/react-native/tooling/junit
+                  cp -R ~/okbuck/tooling/junit/* ~/react-native/tooling/junit/.
+            - save_cache: *save-buck-downloads-cache
 
-      # Validate Android test environment (including Buck)
-      - run:
-          name: Validate Android Test Environment
-          command: ./scripts/validate-android-test-env.sh
+            # Validate Android test environment (including Buck)
+            - run:
+                name: Validate Android Test Environment
+                command: ./scripts/validate-android-test-env.sh
 
-      # Download dependencies using Buck
-      - run: *download-dependencies-buck
+            # Download dependencies using Buck
+            - run: *download-dependencies-buck
 
-      # Download dependencies using Gradle
-      - restore-cache: *restore-gradle-downloads-cache
-      - run: *download-dependencies-gradle
-      - save-cache: *save-gradle-downloads-cache
+            # Download dependencies using Gradle
+            - restore_cache: *restore-gradle-downloads-cache
+            - run: *download-dependencies-gradle
+            - save_cache: *save-gradle-downloads-cache
 
-      # Build and compile
-      - run:
-          name: Build Android App
-          command: |
-            buck build ReactAndroid/src/main/java/com/facebook/react
-            buck build ReactAndroid/src/main/java/com/facebook/react/shell
-      - run:
-          name: Compile Native Libs for Unit and Integration Tests
-          command: ./gradlew :ReactAndroid:packageReactNdkLibsForBuck -Pjobs=$BUILD_THREADS
-          no_output_timeout: 6m
+            # Build and compile
+            - run:
+                name: Build Android App
+                command: |
+                  buck build ReactAndroid/src/main/java/com/facebook/react
+                  buck build ReactAndroid/src/main/java/com/facebook/react/shell
+            - run:
+                name: Compile Native Libs for Unit and Integration Tests
+                command: ./gradlew :ReactAndroid:packageReactNdkLibsForBuck -Pjobs=$BUILD_THREADS
+                no_output_timeout: 6m
 
-      # Build JavaScript Bundle for instrumentation tests
-      - run:
-          name: Build JavaScript Bundle
-          command: node cli.js bundle --max-workers 2 --platform android --dev true --entry-file ReactAndroid/src/androidTest/js/TestBundle.js --bundle-output ReactAndroid/src/androidTest/assets/AndroidTestBundle.js
+            # Build JavaScript Bundle for instrumentation tests
+            - run:
+                name: Build JavaScript Bundle
+                command: node cli.js bundle --max-workers 2 --platform android --dev true --entry-file ReactAndroid/src/androidTest/js/TestBundle.js --bundle-output ReactAndroid/src/androidTest/assets/AndroidTestBundle.js
 
-      # Wait for AVD to finish booting before running tests
-      - run:
-          name: Wait for Android Virtual Device
-          command: source scripts/android-setup.sh && waitForAVD
+            # Wait for AVD to finish booting before running tests
+            - run:
+                name: Wait for Android Virtual Device
+                command: source scripts/android-setup.sh && waitForAVD
 
-      # Test Suite
-      - run:
-          name: Run Unit Tests
-          command: buck test ReactAndroid/src/test/... --config build.threads=$BUILD_THREADS --xml ~/react-native/reports/buck/all-results-raw.xml
+            # Test Suite
+            - run:
+                name: Run Unit Tests
+                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-android-unit -- buck test ReactAndroid/src/test/... --config build.threads=$BUILD_THREADS --xml ~/react-native/reports/buck/all-results-raw.xml
 
-      - run:
-          name: Run Instrumentation Tests
-          command: |
-            if [[ ! -e ReactAndroid/src/androidTest/assets/AndroidTestBundle.js ]]; then
-              echo "JavaScript bundle missing, cannot run instrumentation tests. Verify Build JavaScript Bundle step completed successfully."; exit 1;
-            fi
-            source scripts/android-setup.sh && NO_BUCKD=1 retry3 timeout 300 buck install ReactAndroid/src/androidTest/buck-runner:instrumentation-tests --config build.threads=$BUILD_THREADS
+            - run:
+                name: Run Instrumentation Tests
+                command: |
+                  if [[ ! -e ReactAndroid/src/androidTest/assets/AndroidTestBundle.js ]]; then
+                    echo "JavaScript bundle missing, cannot run instrumentation tests. Verify Build JavaScript Bundle step completed successfully."; exit 1;
+                  fi
+                  source scripts/android-setup.sh && NO_BUCKD=1 buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-android-instrumentation -- retry3 timeout 300 buck install ReactAndroid/src/androidTest/buck-runner:instrumentation-tests --config build.threads=$BUILD_THREADS
 
-      - run:
-          name: Build Android RNTester App
-          command: ./gradlew RNTester:android:app:assembleRelease
+            - run:
+                name: Build Android RNTester App
+                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-android-rntester-build -- ./gradlew RNTester:android:app:assembleRelease
 
-      # Collect Results
-      - run:
-          name: Collect Test Results
-          command: |
-            find . -type f -regex ".*/build/test-results/debug/.*xml" -exec cp {} ~/react-native/reports/build/ \;
-            find . -type f -regex ".*/outputs/androidTest-results/connected/.*xml" -exec cp {} ~/react-native/reports/outputs/ \;
-            find . -type f -regex ".*/buck-out/gen/ReactAndroid/src/test/.*/.*xml" -exec cp {} ~/react-native/reports/buck/ \;
-            ./tooling/junit/buck_to_junit.sh ~/react-native/reports/buck/all-results-raw.xml ~/react-native/reports/junit/all-results-junit.xml
-          when: always
+            # Collect Results
+            - run:
+                name: Collect Test Results
+                command: |
+                  find . -type f -regex ".*/build/test-results/debug/.*xml" -exec cp {} ~/react-native/reports/build/ \;
+                  find . -type f -regex ".*/outputs/androidTest-results/connected/.*xml" -exec cp {} ~/react-native/reports/outputs/ \;
+                  find . -type f -regex ".*/buck-out/gen/ReactAndroid/src/test/.*/.*xml" -exec cp {} ~/react-native/reports/buck/ \;
+                  ./tooling/junit/buck_to_junit.sh ~/react-native/reports/buck/all-results-raw.xml ~/react-native/reports/junit/all-results-junit.xml
+                when: always
 
-      - store_test_results:
-          path: ~/react-native/reports/junit
+            - store_test_results:
+                path: ~/react-native/reports/junit
 
   # -------------------------
   #    JOBS: Test Docker Build
@@ -634,7 +681,7 @@ jobs:
       - CI_BUILD_URL: $CIRCLE_BUILD_URL
     steps:
       - checkout
-      - restore-cache: *restore-yarn-cache
+      - restore_cache: *restore-yarn-cache
       - run: *yarn
       - run:
           name: Test coverage
@@ -655,18 +702,18 @@ jobs:
     steps:
       - checkout
 
-      - restore-cache: *restore-yarn-cache
+      - restore_cache: *restore-yarn-cache
       - run: *yarn
 
       # Fetch dependencies using Buck
-      - restore-cache: *restore-buck-downloads-cache
+      - restore_cache: *restore-buck-downloads-cache
       - run: *download-dependencies-buck
 
       # Fetch dependencies using Gradle
-      - restore-cache: *restore-gradle-downloads-cache
+      - restore_cache: *restore-gradle-downloads-cache
       - run: *download-dependencies-gradle
 
-      - restore-cache: *restore-yarn-cache
+      - restore_cache: *restore-yarn-cache
       - run: *yarn
 
       - run:
@@ -693,19 +740,35 @@ workflows:
 
   tests:
     jobs:
+      - setup:
+          filters: *filter-ignore-gh-pages
+
+      - analyze:
+          requires:
+            - setup
+      - test_javascript:
+          requires:
+            - setup
+      - test_android:
+          requires:
+            - setup
+      - test_ios:
+          requires:
+            - setup
+      - test_end_to_end:
+          requires:
+            - setup
       - test_node_lts:
           filters: *filter-ignore-gh-pages
-
-      - checkout_code:
-          filters: *filter-ignore-gh-pages
-
-      - analyze: *run-after-checkout
-      - test_javascript: *run-after-checkout
-      - test_android: *run-after-checkout
-      - test_ios: *run-after-checkout
-      - test_end_to_end: *run-after-checkout
       - test_docker_build:
           filters: *filter-ignore-gh-pages
+
+      - final:
+          requires:
+            - test_javascript
+            - test_android
+            - test_ios
+            - test_end_to_end
 
   releases:
     jobs:
