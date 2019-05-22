@@ -198,11 +198,9 @@ jobs:
       - image: node:8
     steps:
       - run: |
-          cd $HOME
           mkdir -p be/bin
           date +%s > be/build_start
       - run: |
-          cd $HOME
           curl -L -o be/bin/buildevents https://github.com/honeycombio/buildevents/releases/latest/download/buildevents
           chmod 755 be/bin/buildevents      
 
