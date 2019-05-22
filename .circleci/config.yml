@@ -16,8 +16,6 @@ commands:
           command: |
             echo "STEP_START=$(date +%s)" >> $BASH_ENV
             echo "STEP_SPAN_ID=$(echo $CIRCLE_JOB | sum | cut -f 1 -d \ )" >> $BASH_ENV
-      - run: |
-          echo "PATH=$PATH:buildevents/bin/" >> $BASH_ENV
       - steps: << parameters.steps >>
       - run:
           name: finishing span for job
@@ -195,24 +193,24 @@ macos_defaults: &macos_defaults
 # -------------------------
 jobs:
   setup:
-    <<: *js_defaults
+    working_directory: $HOME
+    docker:
+      - image: node:8
     steps:
-      - checkout
       - run: |
-          mkdir -p buildevents/bin
-          curl -L -o buildevents/bin/buildevents https://github.com/honeycombio/buildevents/releases/latest/download/buildevents
-          chmod 755 buildevents/bin/buildevents
-          date +%s > buildevents/build_start
-      - run: *setup-artifacts
-      - restore_cache: *restore-yarn-cache
-      - run: *yarn
-      - save_cache: *save-yarn-cache
+          cd $HOME
+          mkdir -p be/bin
+          date +%s > be/build_start
+      - run: |
+          cd $HOME
+          curl -L -o be/bin/buildevents https://github.com/honeycombio/buildevents/releases/latest/download/buildevents
+          chmod 755 be/bin/buildevents      
 
       - persist_to_workspace:
-          root: ~/
+          root: be
           paths:
-            - react-native
-            - buildevents
+            - build_start
+            - bin/buildevents
 
       # - persist_to_workspace:
       #     root: buildevents
@@ -227,7 +225,22 @@ jobs:
           at: ~/
       - run: |
           BUILD_START=$(cat buildevents/build_start)
-          buildevents build $CIRCLE_WORKFLOW_ID $BUILD_START success
+          ~/be/bin/buildevents build $CIRCLE_WORKFLOW_ID $BUILD_START success
+
+  checkout_code:
+    working_directory: $HOME/react-native
+    docker:
+      - image: node:8
+    steps:
+      - checkout      
+      - run: *setup-artifacts
+      - restore_cache: *restore-yarn-cache
+      - run: *yarn
+      - save_cache: *save-yarn-cache
+      - persist_to_workspace:
+          root: $HOME
+          paths:
+            - react-native
 
   # -------------------------
   #     JOBS: Analyze PR
@@ -287,17 +300,17 @@ jobs:
 
             - run:
                 name: Lint code
-                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID lint -- scripts/circleci/exec_swallow_error.sh yarn lint --format junit -o ~/react-native/reports/junit/eslint/results.xml
+                command: ~/be/bin/buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID lint -- scripts/circleci/exec_swallow_error.sh yarn lint --format junit -o ~/react-native/reports/junit/eslint/results.xml
                 when: always
 
             - run:
                 name: Check for errors in code using Flow (iOS)
-                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID flow-check-ios -- yarn flow-check-ios
+                command: ~/be/bin/buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID flow-check-ios -- yarn flow-check-ios
                 when: always
 
             - run:
                 name: Check for errors in code using Flow (Android)
-                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID flow-check-android -- yarn flow-check-android
+                command: ~/be/bin/buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID flow-check-android -- yarn flow-check-android
                 when: always
 
             - run:
@@ -331,7 +344,7 @@ jobs:
 
             - run:
                 name: JavaScript Test Suite
-                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-js -- node ./scripts/run-ci-javascript-tests.js --maxWorkers 2
+                command: ~/be/bin/buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-js -- node ./scripts/run-ci-javascript-tests.js --maxWorkers 2
 
             - store_test_results:
                 path: ~/react-native/reports/junit
@@ -522,7 +535,7 @@ jobs:
             # Test
             - run:
                 name: Run Detox iOS End-to-End Tests
-                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-detox-ios -- yarn run test-ios-e2e
+                command: ~/be/bin/buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-detox-ios -- yarn run test-ios-e2e
                 when: always
 
             - run:
@@ -532,7 +545,7 @@ jobs:
                   set +eo pipefail
                   lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
                   set -eo pipefail
-                  buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-js-e2e -- node ./scripts/run-ci-e2e-tests.js --js --retries 3
+                  ~/be/bin/buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-js-e2e -- node ./scripts/run-ci-e2e-tests.js --js --retries 3
                 when: always
 
             - run:
@@ -542,7 +555,7 @@ jobs:
                   set +eo pipefail
                   lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
                   set -eo pipefail
-                  buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-ios-e2e -- node ./scripts/run-ci-e2e-tests.js --ios --retries 3;
+                  ~/be/bin/buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-ios-e2e -- node ./scripts/run-ci-e2e-tests.js --ios --retries 3;
                 when: always
 
   # -------------------------
@@ -624,7 +637,7 @@ jobs:
             # Test Suite
             - run:
                 name: Run Unit Tests
-                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-android-unit -- buck test ReactAndroid/src/test/... --config build.threads=$BUILD_THREADS --xml ~/react-native/reports/buck/all-results-raw.xml
+                command: ~/be/bin/buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-android-unit -- buck test ReactAndroid/src/test/... --config build.threads=$BUILD_THREADS --xml ~/react-native/reports/buck/all-results-raw.xml
 
             - run:
                 name: Run Instrumentation Tests
@@ -632,11 +645,11 @@ jobs:
                   if [[ ! -e ReactAndroid/src/androidTest/assets/AndroidTestBundle.js ]]; then
                     echo "JavaScript bundle missing, cannot run instrumentation tests. Verify Build JavaScript Bundle step completed successfully."; exit 1;
                   fi
-                  source scripts/android-setup.sh && NO_BUCKD=1 buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-android-instrumentation -- retry3 timeout 300 buck install ReactAndroid/src/androidTest/buck-runner:instrumentation-tests --config build.threads=$BUILD_THREADS
+                  source scripts/android-setup.sh && NO_BUCKD=1 ~/be/bin/buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-android-instrumentation -- retry3 timeout 300 buck install ReactAndroid/src/androidTest/buck-runner:instrumentation-tests --config build.threads=$BUILD_THREADS
 
             - run:
                 name: Build Android RNTester App
-                command: buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-android-rntester-build -- ./gradlew RNTester:android:app:assembleRelease
+                command: ~/be/bin/buildevents cmd $CIRCLE_WORKFLOW_ID $STEP_SPAN_ID test-android-rntester-build -- ./gradlew RNTester:android:app:assembleRelease
 
             # Collect Results
             - run:
@@ -742,25 +755,31 @@ workflows:
     jobs:
       - setup:
           filters: *filter-ignore-gh-pages
-
+      - checkout_code:
+          requires:
+            - setup
       - analyze:
           requires:
-            - setup
+            - checkout_code
       - test_javascript:
           requires:
-            - setup
+            - checkout_code
       - test_android:
           requires:
-            - setup
+            - checkout_code
       - test_ios:
           requires:
-            - setup
+            - checkout_code
       - test_end_to_end:
           requires:
-            - setup
+            - checkout_code
       - test_node_lts:
+          requires:
+            - setup
           filters: *filter-ignore-gh-pages
       - test_docker_build:
+          requires:
+            - setup
           filters: *filter-ignore-gh-pages
 
       - final:
