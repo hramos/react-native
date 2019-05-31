@@ -708,6 +708,3 @@ workflows:
       - js_coverage:
           requires:
             - setup
-          filters:
-            branches:
-              only: master
