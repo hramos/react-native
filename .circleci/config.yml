@@ -59,7 +59,7 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - v2-yarn-cache-{{ arch }}-{{ checksum "package.json" }}
+            - v2-yarn-cache-{{ arch }}-{{ checksum "yarn.lock" }}
             - v2-yarn-cache-{{ arch }}
       - run:
           name: Run Yarn
@@ -72,7 +72,7 @@ commands:
       - save_cache:
           paths:
             - ~/.cache/yarn
-          key: v2-yarn-cache-{{ arch }}-{{ checksum "package.json" }}
+          key: v2-yarn-cache-{{ arch }}-{{ checksum "yarn.lock" }}
 
   install_buck_tooling:
     steps:
