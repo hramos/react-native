@@ -295,6 +295,15 @@ jobs:
       - run_yarn
 
       - run:
+          name: Fetch CocoaPods Specs
+          command: |
+            curl https://cocoapods-specs.circleci.com/fetch-cocoapods-repo-from-s3.sh | bash -s cf
+
+      - run:
+          name: Install CocoaPods
+          command: cd RNTester && pod install --verbose
+
+      - run:
           name: Print Xcode environment
           command: xcodebuild -version
 
@@ -327,7 +336,7 @@ jobs:
           command: |
             source ./scripts/.tests.env
             xcodebuild \
-              -project RNTester/RNTester.xcodeproj \
+              -workspace RNTester/RNTesterPods.xcworkspace \
               -scheme RNTester \
               -sdk iphonesimulator \
               -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
@@ -366,7 +375,7 @@ jobs:
           command: |
             source ./scripts/.tests.env
             xcodebuild \
-              -project RNTester/RNTester.xcodeproj \
+              -workspace RNTester/RNTesterPods.xcworkspace \
               -scheme RNTester \
               -sdk iphonesimulator \
               -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
@@ -381,7 +390,7 @@ jobs:
           command: |
             source ./scripts/.tests.env
             xcodebuild \
-              -project RNTester/RNTester.xcodeproj \
+              -workspace RNTester/RNTesterPods.xcworkspace \
               -scheme RNTester \
               -sdk iphonesimulator \
               -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \

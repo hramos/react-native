@@ -52,7 +52,7 @@ waitForPackager() {
 
 runTests() {
   xcodebuild \
-    -project "RNTester/RNTester.xcodeproj" \
+    -workspace "RNTester/RNTesterPods.xcworkspace" \
     -scheme "$SCHEME" \
     -sdk "$SDK" \
     -destination "$DESTINATION" \
@@ -62,7 +62,7 @@ runTests() {
 
 buildProject() {
   xcodebuild \
-    -project "RNTester/RNTester.xcodeproj" \
+    -workspace "RNTester/RNTesterPods.xcworkspace" \
     -scheme "$SCHEME" \
     -sdk "$SDK" \
     -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
