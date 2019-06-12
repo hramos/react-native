@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the LICENSE
@@ -1634,6 +1634,18 @@ static void YGNodeWithMeasureFuncSetMeasuredDimensions(
         innerHeight,
         heightMeasureMode,
         layoutContext);
+
+#ifdef YG_ENABLE_EVENTS
+    Event::publish<Event::NodeMeasure>(
+        node,
+        {layoutContext,
+         innerWidth,
+         widthMeasureMode,
+         innerHeight,
+         heightMeasureMode,
+         measuredSize.width,
+         measuredSize.height});
+#endif
 
     node->setLayoutMeasuredDimension(
         YGNodeBoundAxis(
@@ -3666,7 +3678,7 @@ bool YGLayoutNodeInternal(
     YGMarkerLayoutData& layoutMarkerData,
     void* const layoutContext) {
 #ifdef YG_ENABLE_EVENTS
-  Event::publish<Event::NodeLayout>(node);
+  Event::publish<Event::NodeLayout>(node, {performLayout, layoutContext});
 #endif
   YGLayout* layout = &node->getLayout();
 
@@ -4009,7 +4021,7 @@ void YGNodeCalculateLayoutWithContext(
     void* layoutContext) {
 
 #ifdef YG_ENABLE_EVENTS
-  Event::publish<Event::LayoutPassStart>(node);
+  Event::publish<Event::LayoutPassStart>(node, {layoutContext});
 #endif
   // unique pointer to allow ending the marker early
   std::unique_ptr<marker::MarkerSection<YGMarkerLayout>> marker{
@@ -4093,7 +4105,7 @@ void YGNodeCalculateLayoutWithContext(
   marker = nullptr;
 
 #ifdef YG_ENABLE_EVENTS
-  Event::publish<Event::LayoutPassEnd>(node);
+  Event::publish<Event::LayoutPassEnd>(node, {layoutContext});
 #endif
 
   // We want to get rid off `useLegacyStretchBehaviour` from YGConfig. But we

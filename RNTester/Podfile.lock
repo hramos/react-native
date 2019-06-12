@@ -40,7 +40,6 @@ PODS:
   - React-DevSupport (1000.0.0):
     - React-Core (= 1000.0.0)
     - React-RCTWebSocket (= 1000.0.0)
-  - React-fishhook (1000.0.0)
   - React-jscallinvoker (1000.0.0):
     - Folly (= 2018.10.22.00)
     - React-cxxreact (= 1000.0.0)
@@ -87,7 +86,6 @@ PODS:
     - React-Core (= 1000.0.0)
   - React-RCTWebSocket (1000.0.0):
     - React-Core (= 1000.0.0)
-    - React-fishhook (= 1000.0.0)
   - React-turbomodule-core (1000.0.0):
     - Folly (= 2018.10.22.00)
     - React-Core (= 1000.0.0)
@@ -125,7 +123,6 @@ DEPENDENCIES:
   - React-Core (from `../React`)
   - React-cxxreact (from `../ReactCommon/cxxreact`)
   - React-DevSupport (from `../React`)
-  - React-fishhook (from `../Libraries/fishhook`)
   - React-jscallinvoker (from `../ReactCommon/jscallinvoker`)
   - React-jsi (from `../ReactCommon/jsi`)
   - React-jsiexecutor (from `../ReactCommon/jsiexecutor`)
@@ -166,8 +163,6 @@ EXTERNAL SOURCES:
     :path: "../ReactCommon/cxxreact"
   React-DevSupport:
     :path: "../React"
-  React-fishhook:
-    :path: "../Libraries/fishhook"
   React-jscallinvoker:
     :path: "../ReactCommon/jscallinvoker"
   React-jsi:
@@ -208,32 +203,31 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
-  Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
+  Folly: dd2e28f0cafc79aff3f5ca4f6fb858a0c89a4cf4
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
-  React: d472ccd1d99050714cb375c82808ccfbc52bbaf8
-  React-ART: d275e72395d62e12a2ed60ff16dfc05aa1733add
-  React-Core: e56d02b575749c6c1be584a6035bb1f3e2a20932
-  React-cxxreact: 03f7e931746aa1e12e3b47e91aeab2cdb6c58403
-  React-DevSupport: 3694ebc303f10828e37d3fcec399c0e59fad3f92
-  React-fishhook: 42f3c0ca3a15fe3a5e598c87f2a7391af06b5f8c
-  React-jscallinvoker: 36c418305ed72bdcb7a15a4990183cbd0ed12491
-  React-jsi: fed4c21d85400e1f5e85bcce548015551ae65f29
-  React-jsiexecutor: b066ee382c2f8e7c69431e2457b4048792bf19dc
-  React-jsinspector: 13a03b0740fc7721c5f0390c785aaae719b9e7e7
-  React-RCTActionSheet: 23404a997834926c71af09b2839542d9c61d4668
-  React-RCTAnimation: 5f6a222328a76011b0ce68b8517fd35e2e57f02b
-  React-RCTBlob: 6356e42392d996e3db075b34b9a10676f27340ec
-  React-RCTImage: 8eb09e6d7d1b60b92fe8a578e429138809df4ab1
-  React-RCTLinking: 362c66ef3a08b69853ca3a35d8a407608d70e4c2
-  React-RCTNetwork: 66e039d61af569c727bfcaadfbbe315c3c9519c6
-  React-RCTPushNotification: 5b37e211eaecc8e4cd28aef6677490fe654c7d54
-  React-RCTSettings: e83341bb48b15333a3ac04ca06960b87f5de2135
-  React-RCTText: bc3fa092598333fab580230317e933a2cb22f706
-  React-RCTVibration: 63b95431e11f4d4c7db65062a485a16bdbedc579
-  React-RCTWebSocket: 75a8250f02290969eaeba0094c12d028df12c8b5
-  React-turbomodule-core: 563450d87b4aca7ea65bcb17559ca009e1b6f12b
-  React-turbomodule-samples: f846f0830032771a1ddca2d7f4ed31cee8145458
-  yoga: 1daaf50c89be4c0409dff3ef44250cde9db74eae
+  React: c0a19b69d670cf52ebe409884278fc99dbd23442
+  React-ART: 16c5ea4b6bad6405d6cfb22f76ba5cc365788e1a
+  React-Core: 866b4e9d86e28323652f5613ce907721d177d737
+  React-cxxreact: a44aa255eed12313306776232f1b682c0bea6236
+  React-DevSupport: 34ea1219d93edc6b3291179fc2a8f0246d270a88
+  React-jscallinvoker: 506241f5fa49a12334b1ada71a78ff9882071618
+  React-jsi: ce991d9dee7984ca4f602e7996c4f72aa77ffbd4
+  React-jsiexecutor: fdb97077b9ab38acae7b34f2185a456120bd5c74
+  React-jsinspector: 54f4a3a3dea7624329990076496e5384217c6bcf
+  React-RCTActionSheet: 1842e081a7314bd7098141fda02620cc7e720b82
+  React-RCTAnimation: f3eca339f34353cb166271deede20376c59f488a
+  React-RCTBlob: 6d90fe099d7d00643ee6c9a02576c8e94c56064a
+  React-RCTImage: 52d530f89a1035a932f6f58f893ab4ffb6ab7b77
+  React-RCTLinking: 1ca7f6ae4d79e9f16ce61096eded62979cc7dbe9
+  React-RCTNetwork: 7f50adb77a0af2a5c36c15f97f482667fd891067
+  React-RCTPushNotification: ad3e9f2d848c8acaca486e4d94ece3273e3abea8
+  React-RCTSettings: d46f9de0b54b5f7805618611a55674b78ce74343
+  React-RCTText: 7d3993da35bed595f2baa594acaf1d2feef51e3d
+  React-RCTVibration: 53a3597eb3fe3afb9b1fb5a047626f2e00b43587
+  React-RCTWebSocket: 309ee1b0d9c7ca01ddd11352a59bfd376049b1f9
+  React-turbomodule-core: 868d4976024dc58058d40163c8b0f8a02cd19628
+  React-turbomodule-samples: 37982129cb85f4fc4f13a593b32edc1ac876f0ac
+  yoga: dff1c46e5852ac78801e1b664a6ff1d77e498529
 
 PODFILE CHECKSUM: a79215c3ad6df8cdb56fe715f1dfe6f65d89aca6
 

@@ -110,6 +110,14 @@ const STRING_PROP: SchemaType = {
                 default: '',
               },
             },
+            {
+              name: 'accessibilityRole',
+              optional: true,
+              typeAnnotation: {
+                type: 'StringTypeAnnotation',
+                default: null,
+              },
+            },
           ],
         },
       },
@@ -396,6 +404,25 @@ const ARRAY_PROPS: SchemaType = {
                 elementType: {
                   type: 'NativePrimitiveTypeAnnotation',
                   name: 'PointPrimitive',
+                },
+              },
+            },
+            {
+              name: 'sizes',
+              optional: true,
+              typeAnnotation: {
+                type: 'ArrayTypeAnnotation',
+                elementType: {
+                  type: 'StringEnumTypeAnnotation',
+                  default: 'small',
+                  options: [
+                    {
+                      name: 'small',
+                    },
+                    {
+                      name: 'large',
+                    },
+                  ],
                 },
               },
             },

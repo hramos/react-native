@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
  * This source code is licensed under the MIT license found in the LICENSE
@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <vector>
+#include "../YGEnums.h"
 
 struct YGConfig;
 struct YGNode;
@@ -21,7 +22,8 @@ struct Event {
     NodeDeallocation,
     NodeLayout,
     LayoutPassStart,
-    LayoutPassEnd
+    LayoutPassEnd,
+    NodeMeasure,
   };
   class Data;
   using Subscriber = void(const YGNode&, Type, Data);
@@ -69,6 +71,33 @@ struct Event::TypedData<Event::NodeAllocation> {
 template <>
 struct Event::TypedData<Event::NodeDeallocation> {
   YGConfig* config;
+};
+
+template <>
+struct Event::TypedData<Event::LayoutPassStart> {
+  void* layoutContext;
+};
+
+template <>
+struct Event::TypedData<Event::LayoutPassEnd> {
+  void* layoutContext;
+};
+
+template <>
+struct Event::TypedData<Event::NodeMeasure> {
+  void* layoutContext;
+  float width;
+  YGMeasureMode widthMeasureMode;
+  float height;
+  YGMeasureMode heightMeasureMode;
+  float measuredWidth;
+  float measuredHeight;
+};
+
+template <>
+struct Event::TypedData<Event::NodeLayout> {
+  bool performLayout;
+  void* layoutContext;
 };
 
 } // namespace yoga

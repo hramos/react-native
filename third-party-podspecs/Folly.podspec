@@ -31,19 +31,17 @@ Pod::Spec.new do |spec|
                       'folly/hash/SpookyHashV2.cpp',
                       'folly/lang/Assume.cpp',
                       'folly/lang/ColdClass.cpp',
-                      'folly/memory/detail/MallocImpl.cpp'
-
-  # workaround for https://github.com/facebook/react-native/issues/14326
-  spec.preserve_paths = 'folly/*.h',
-                        'folly/container/*.h',
-                        'folly/container/detail/*.h',
-                        'folly/detail/*.h',
-                        'folly/functional/*.h',
-                        'folly/hash/*.h',
-                        'folly/lang/*.h',
-                        'folly/memory/*.h',
-                        'folly/memory/detail/*.h',
-                        'folly/portability/*.h'
+                      'folly/memory/detail/MallocImpl.cpp',
+                      'folly/*.h',
+                      'folly/container/*.h',
+                      'folly/container/detail/*.h',
+                      'folly/detail/*.h',
+                      'folly/functional/*.h',
+                      'folly/hash/*.h',
+                      'folly/lang/*.h',
+                      'folly/memory/*.h',
+                      'folly/memory/detail/*.h',
+                      'folly/portability/*.h'
   spec.libraries           = "stdc++"
   spec.pod_target_xcconfig = { "USE_HEADERMAP" => "NO",
                                "CLANG_CXX_LANGUAGE_STANDARD" => "c++14",

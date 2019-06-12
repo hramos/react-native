@@ -45,7 +45,7 @@ type PropTypeTypeAnnotation =
     |}>
   | $ReadOnly<{|
       type: 'StringTypeAnnotation',
-      default: string,
+      default: string | null,
     |}>
   | $ReadOnly<{|
       type: 'FloatTypeAnnotation',
@@ -83,6 +83,7 @@ type PropTypeTypeAnnotation =
           |}>
         | $ReadOnly<{|
             type: 'StringEnumTypeAnnotation',
+            default: string,
             options: $ReadOnlyArray<{|
               name: string,
             |}>,
