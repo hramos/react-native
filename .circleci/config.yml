@@ -332,26 +332,12 @@ jobs:
           command: cd RNTester && pod install
 
       - run:
-          name: Build RNTesterPods
-          command: |
-            source ./scripts/.tests.env
-            xcodebuild \
-              -workspace RNTester/RNTesterPods.xcworkspace \
-              -scheme Pods-RNTester \
-              -sdk iphonesimulator \
-              -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
-              -UseModernBuildSystem=NO \
-              build | \
-            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_cocoapod_build/results.xml" && \
-            exit "${PIPESTATUS[0]}"
-
-      - run:
           name: Run RNTesterPods Unit Tests
           command: |
             source ./scripts/.tests.env
             xcodebuild \
               -workspace RNTester/RNTesterPods.xcworkspace \
-              -scheme Pods-RNTesterUnitTests \
+              -scheme RNTesterUnitTests \
               -sdk iphonesimulator \
               -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
               -UseModernBuildSystem=NO \
