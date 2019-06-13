@@ -1189,7 +1189,7 @@
 						CreatedOnToolsVersion = 6.1.1;
 					};
 					13B07F861A680F5B00A75B9A = {
-						DevelopmentTeam = VYK7DLU38Z;
+						DevelopmentTeam = 56ZZM6JHSL;
 					};
 					143BC5941B21E3E100462512 = {
 						CreatedOnToolsVersion = 6.3.2;
@@ -1862,7 +1862,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUNDLE_CONFIG = "$(SRCROOT)/../metro.config.js";
-				DEVELOPMENT_TEAM = VYK7DLU38Z;
+				DEVELOPMENT_TEAM = 56ZZM6JHSL;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"RN_BUNDLE_PREFIX=$(RN_BUNDLE_PREFIX)",
 					"DEBUG=1",
@@ -1889,7 +1889,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				BUNDLE_CONFIG = "$(SRCROOT)/../metro.config.js";
-				DEVELOPMENT_TEAM = VYK7DLU38Z;
+				DEVELOPMENT_TEAM = 56ZZM6JHSL;
 				GCC_PREPROCESSOR_DEFINITIONS = "RN_BUNDLE_PREFIX=$(RN_BUNDLE_PREFIX)";
 				HEADER_SEARCH_PATHS = (
 					"$(SRCROOT)/../third-party/boost_1_63_0",

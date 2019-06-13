@@ -20,4 +20,9 @@ target 'RNTester' do
   #
   # To use fabric: add `fabric_enabled` option to the use_react_native method above, like below
   # use_react_native!(path: "..", turbo_modules_enabled: true, fabric_enabled: true)
+
+
+  target 'RNTesterUnitTests' do
+    inherit! :search_paths
+  end
 end

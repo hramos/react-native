@@ -2,10 +2,10 @@ def use_react_native! (options={})
 
   # The prefix to the react-native
   prefix = options[:path] ||= "../node_modules/react-native"
-  
+
   # Include Fabric dependencies
   fabric_enabled = options[:fabric_enabled] ||= false
-  
+
   # Include Turbo Modules dependencies
   turbo_modules_enabled = options[:turbo_modules_enabled] ||= false
 
@@ -25,6 +25,7 @@ def use_react_native! (options={})
   pod 'React-RCTText', :path => "#{prefix}/Libraries/Text"
   pod 'React-RCTVibration', :path => "#{prefix}/Libraries/Vibration"
   pod 'React-RCTWebSocket', :path => "#{prefix}/Libraries/WebSocket"
+  pod 'React-RCTTest', :path => "#{prefix}/RNTester/RCTTest"
 
   unless production
     pod 'React-DevSupport', :path => "#{prefix}/React"
@@ -48,7 +49,7 @@ def use_react_native! (options={})
     pod 'React-RCTFabric', :path => "#{prefix}/React"
     pod 'Folly/Fabric', :podspec => "#{prefix}/third-party-podspecs/Folly.podspec"
   end
-  
+
   if turbo_modules_enabled
     pod 'React-turbomodule-core', :path => "#{prefix}/ReactCommon/turbomodule/core"
   end

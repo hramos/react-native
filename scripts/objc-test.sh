@@ -68,7 +68,7 @@ buildProject() {
     -UseModernBuildSystem="$USE_MODERN_BUILD_SYSTEM" \
     build
 }
-
+SEE if addign linked frameworks helps?
 xcprettyFormat() {
   if [ "$CI" ]; then
     # Circle CI expects JUnit reports to be available here

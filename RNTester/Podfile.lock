@@ -40,7 +40,9 @@ PODS:
   - React-DevSupport (1000.0.0):
     - React-Core (= 1000.0.0)
     - React-RCTWebSocket (= 1000.0.0)
-  - React-fishhook (1000.0.0)
+  - React-jscallinvoker (1000.0.0):
+    - Folly (= 2018.10.22.00)
+    - React-cxxreact (= 1000.0.0)
   - React-jsi (1000.0.0):
     - boost-for-react-native (= 1.63.0)
     - DoubleConversion
@@ -78,23 +80,26 @@ PODS:
     - React-Core (= 1000.0.0)
   - React-RCTSettings (1000.0.0):
     - React-Core (= 1000.0.0)
+  - React-RCTTest (1000.0.0):
+    - React-Core (= 1000.0.0)
   - React-RCTText (1000.0.0):
     - React-Core (= 1000.0.0)
   - React-RCTVibration (1000.0.0):
     - React-Core (= 1000.0.0)
   - React-RCTWebSocket (1000.0.0):
     - React-Core (= 1000.0.0)
-    - React-fishhook (= 1000.0.0)
   - React-turbomodule-core (1000.0.0):
     - Folly (= 2018.10.22.00)
     - React-Core (= 1000.0.0)
     - React-cxxreact (= 1000.0.0)
+    - React-jscallinvoker (= 1000.0.0)
     - React-jsi (= 1000.0.0)
     - React-turbomodule-core/core-ios (= 1000.0.0)
   - React-turbomodule-core/core-ios (1000.0.0):
     - Folly (= 2018.10.22.00)
     - React-Core (= 1000.0.0)
     - React-cxxreact (= 1000.0.0)
+    - React-jscallinvoker (= 1000.0.0)
     - React-jsi (= 1000.0.0)
   - React-turbomodule-samples (1000.0.0):
     - Folly (= 2018.10.22.00)
@@ -120,7 +125,7 @@ DEPENDENCIES:
   - React-Core (from `../React`)
   - React-cxxreact (from `../ReactCommon/cxxreact`)
   - React-DevSupport (from `../React`)
-  - React-fishhook (from `../Libraries/fishhook`)
+  - React-jscallinvoker (from `../ReactCommon/jscallinvoker`)
   - React-jsi (from `../ReactCommon/jsi`)
   - React-jsiexecutor (from `../ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../ReactCommon/jsinspector`)
@@ -132,6 +137,7 @@ DEPENDENCIES:
   - React-RCTNetwork (from `../Libraries/Network`)
   - React-RCTPushNotification (from `../Libraries/PushNotificationIOS`)
   - React-RCTSettings (from `../Libraries/Settings`)
+  - React-RCTTest (from `../RNTester/RCTTest`)
   - React-RCTText (from `../Libraries/Text`)
   - React-RCTVibration (from `../Libraries/Vibration`)
   - React-RCTWebSocket (from `../Libraries/WebSocket`)
@@ -160,8 +166,8 @@ EXTERNAL SOURCES:
     :path: "../ReactCommon/cxxreact"
   React-DevSupport:
     :path: "../React"
-  React-fishhook:
-    :path: "../Libraries/fishhook"
+  React-jscallinvoker:
+    :path: "../ReactCommon/jscallinvoker"
   React-jsi:
     :path: "../ReactCommon/jsi"
   React-jsiexecutor:
@@ -184,6 +190,8 @@ EXTERNAL SOURCES:
     :path: "../Libraries/PushNotificationIOS"
   React-RCTSettings:
     :path: "../Libraries/Settings"
+  React-RCTTest:
+    :path: "../RNTester/RCTTest"
   React-RCTText:
     :path: "../Libraries/Text"
   React-RCTVibration:
@@ -202,30 +210,31 @@ SPEC CHECKSUMS:
   DoubleConversion: 5805e889d232975c086db112ece9ed034df7a0b2
   Folly: 30e7936e1c45c08d884aa59369ed951a8e68cf51
   glog: 1f3da668190260b06b429bb211bfbee5cd790c28
-  React: e7b61c9123f89c4cd9becea2122af02568be6e13
-  React-ART: 3dba78ec04b585a82456d1df4bda7a08dbc83a8d
-  React-Core: d1c3aa4b1c5c57bf839de3c83396b59c1efbf1ba
-  React-cxxreact: 5f2b678adbe8ff5256801603e1b496e481bc2430
-  React-DevSupport: 9bde3ce4f7707d9487759101ea3188f4f07c9003
-  React-fishhook: a9a43c2c84ab2519809810bcdd363e2774007c69
-  React-jsi: cdf32eb002ff3e243364a1abb71925e0e93003db
-  React-jsiexecutor: 6e53c44a5371297f0c9cc39780f12cb3efba3b81
-  React-jsinspector: 2f42a591151e828d0422cbd3b609eedcb920d58e
-  React-RCTActionSheet: 4ad4bfac1ba9ec020edf278362855448d607cafd
-  React-RCTAnimation: f050e9fbe85e5616f74cea7a2557bdfb6be73cee
-  React-RCTBlob: 9f907aab3417a43bbda84aef76f88ee528e877d4
-  React-RCTImage: 4234a754ebdb922416f5f77cff121c680fd3ccbe
-  React-RCTLinking: 3a52500942cc73999df19f541b7bda5887c3c43d
-  React-RCTNetwork: 2042d2648e1160770ac0e5068bb5b648c03296a5
-  React-RCTPushNotification: 3cfbf863d0597b5da80a15c9a9285a0ad89b23ba
-  React-RCTSettings: 8099c9d904c0fbe46c463de8791478b5bc72809e
-  React-RCTText: c4a643a08fce4727316366fea5ad17fa14f72f54
-  React-RCTVibration: c5933466242187bffe55fa5496f841e04db66c8a
-  React-RCTWebSocket: 233c66a6394de3816ee46861bbe0dba9f83e45a0
-  React-turbomodule-core: 7ae77c38b85f6f81be40c0c3dc456d3a5fda4797
-  React-turbomodule-samples: 483f2c80e81b89197737828405a0ac27c77f58b5
-  yoga: 56698cdff46e3dbb7aa71fd2fd7dc0ce650dc0fb
+  React: 30ebf0a6944137b42c858e27d84c44b381864a11
+  React-ART: 69343cc7b5ebf6c9e1dc85e6d053905d72068d93
+  React-Core: 142e59c1ae4b70925e2f3c22e1a9d7be6dd99e4d
+  React-cxxreact: 5ca91fa4e39a03d7308e9711674eed3730fd89cb
+  React-DevSupport: f2e07f6f9842248d29d5451c12f84c3f7fa4fb54
+  React-jscallinvoker: 54e75bb0b0616e6a995730235496dd37d6c08aed
+  React-jsi: 9af1399ad41046d1a80d33cafa91c76d934b7243
+  React-jsiexecutor: ab8e2a4326bc887e1cc4827058aece8e9bd0e052
+  React-jsinspector: d3aba75b776bdb14868986a1a42fc6ac83cd025d
+  React-RCTActionSheet: 58e37f02af4af957d50a2c877b1f25c9827b25f7
+  React-RCTAnimation: 7ddacaaee85ccdc0b576d9e828d3ca4916d02aa9
+  React-RCTBlob: 4368d7f54c0a85bf4fda047a377366e85a7985ce
+  React-RCTImage: e5b1b337c7a8c46e5e4fa3eee5817f5d900d7840
+  React-RCTLinking: 0a41284708ea8348b09ac6010f5fc21605bb3c39
+  React-RCTNetwork: bdfc4e8bf85f5bd3b91baead4137a87d07f6c747
+  React-RCTPushNotification: 7ee0f6e13e972433beafdfc34879cd096353368b
+  React-RCTSettings: 330f2860a1cafd2f8d55c6dcd5bed769d63f5802
+  React-RCTTest: d26a1ed5a0d1a3323d785466d0354b9b5a75d96c
+  React-RCTText: 151466edb3e7fcefe2c02d7f231a7166d0150a13
+  React-RCTVibration: 81c73a1c6a77d6612d118acf702bfe96bfea683a
+  React-RCTWebSocket: 193bcc4e0e5c05dc303c1f218b5594416c2323eb
+  React-turbomodule-core: 5818fb5fc1a787d2fa470e6fa5a59131bd70ff9b
+  React-turbomodule-samples: b5f58f74aa1cf917de22b5a426e19eb0b700c513
+  yoga: 4e489ea285b9ed9816a56b9fecc29923099400f1
 
-PODFILE CHECKSUM: bb578b8286c0068879a41ac092c9690cc3ede523
+PODFILE CHECKSUM: f80718e52e381f4726bb04e4b539eb9dde2f8630
 
-COCOAPODS: 1.6.3
+COCOAPODS: 1.7.1
