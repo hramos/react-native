@@ -335,14 +335,13 @@ jobs:
           name: Run RNTesterPods Unit Tests
           command: |
             source ./scripts/.tests.env
-            xcodebuild \
+            xcodebuild build test \
               -workspace RNTester/RNTesterPods.xcworkspace \
               -scheme RNTesterUnitTests \
-              -sdk iphonesimulator \
               -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
-              -UseModernBuildSystem=NO \
-              build test | \
-            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_cocoapod_build/results.xml" && \
+              -sdk iphonesimulator \
+              -skip-testing:RNTesterUnitTests/RCTBundleURLProviderTests/testBundleURL | \
+            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_unit/results.xml" && \
             exit "${PIPESTATUS[0]}"
 
       - run:

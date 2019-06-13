@@ -1,78 +1,37 @@
-/**
- * Copyright (c) Facebook, Inc. and its affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
+//
+//  RNTesterIntegrationTests.m
+//  RNTesterIntegrationTests
+//
+//  Created by Héctor Ramos on 6/13/19.
+//  Copyright © 2019 Facebook. All rights reserved.
+//
 
-#import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
-
-#import <RCTTest/RCTTestRunner.h>
-
-#define RCT_TEST(name)                  \
-- (void)test##name                      \
-{                                       \
-  [_runner runTest:_cmd module:@#name]; \
-}
-
-#define RCT_TEST_ONLY_WITH_PACKAGER(name) \
-- (void)test##name                        \
-{                                         \
-  if (getenv("CI_USE_PACKAGER")) {        \
-    [_runner runTest:_cmd module:@#name]; \
-  }                                       \
-}
 
 @interface RNTesterIntegrationTests : XCTestCase
 
 @end
 
 @implementation RNTesterIntegrationTests
-{
-  RCTTestRunner *_runner;
+
+- (void)setUp {
+    // Put setup code here. This method is called before the invocation of each test method in the class.
 }
 
-- (void)setUp
-{
-  _runner = RCTInitRunnerForApp(@"IntegrationTests/IntegrationTestsApp", nil, nil);
-  _runner.recordMode = NO;
+- (void)tearDown {
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
-#pragma mark - Test harness
-
-- (void)testTheTester_waitOneFrame
-{
-  [_runner runTest:_cmd
-            module:@"IntegrationTestHarnessTest"
-      initialProps:@{@"waitOneFrame": @YES}
-configurationBlock:nil];
+- (void)testExample {
+    // This is an example of a functional test case.
+    // Use XCTAssert and related functions to verify your tests produce the correct results.
 }
 
-// Disabled
-//- (void)testTheTester_ExpectError
-//{
-//  [_runner runTest:_cmd
-//            module:@"IntegrationTestHarnessTest"
-//      initialProps:@{@"shouldThrow": @YES}
-//configurationBlock:nil
-//  expectErrorRegex:@"because shouldThrow"];
-//}
-
-#pragma mark - JS tests
-
-// This list should be kept in sync with IntegrationTestsApp.js
-RCT_TEST(IntegrationTestHarnessTest)
-// RCT_TEST(TimersTest) // Disabled due to issue introduced in 61346d3
-RCT_TEST(AsyncStorageTest)
-RCT_TEST(AppEventsTest)
-//RCT_TEST(ImageCachePolicyTest) // This test never passed.
-RCT_TEST(ImageSnapshotTest)
-//RCT_TEST(LayoutEventsTest) // Disabled due to flakiness: #8686784
-RCT_TEST(SimpleSnapshotTest)
-RCT_TEST(SyncMethodTest)
-RCT_TEST(PromiseTest)
-RCT_TEST_ONLY_WITH_PACKAGER(WebSocketTest) // Requires a WebSocket test server, see scripts/objc-test.sh
-RCT_TEST(AccessibilityManagerTest)
+- (void)testPerformanceExample {
+    // This is an example of a performance test case.
+    [self measureBlock:^{
+        // Put the code you want to measure the time of here.
+    }];
+}
 
 @end
