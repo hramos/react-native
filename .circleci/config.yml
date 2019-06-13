@@ -306,6 +306,11 @@ jobs:
           name: Boot iOS Simulator
           command: source scripts/.tests.env && xcrun simctl boot "$IOS_DEVICE" || true
 
+      - run:
+          name: Fetch CocoaPods Specs
+          command: |
+            curl https://cocoapods-specs.circleci.com/fetch-cocoapods-repo-from-s3.sh | bash -s cf
+
       - with_brew_cache_span:
           steps:
             - brew_install:
@@ -323,17 +328,35 @@ jobs:
           background: true
 
       - run:
-          name: Verify RNTester can be built
+          name: Generate RNTesterPods workspace using CocoaPods
+          command: cd RNTester && pod install
+
+      - run:
+          name: Build RNTesterPods
           command: |
             source ./scripts/.tests.env
             xcodebuild \
-              -project RNTester/RNTester.xcodeproj \
-              -scheme RNTester \
+              -workspace RNTester/RNTesterPods.xcworkspace \
+              -scheme Pods-RNTester \
               -sdk iphonesimulator \
               -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
               -UseModernBuildSystem=NO \
               build | \
-            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_buiild/results.xml" && \
+            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_cocoapod_build/results.xml" && \
+            exit "${PIPESTATUS[0]}"
+
+      - run:
+          name: Run RNTesterPods Unit Tests
+          command: |
+            source ./scripts/.tests.env
+            xcodebuild \
+              -workspace RNTester/RNTesterPods.xcworkspace \
+              -scheme Pods-RNTesterUnitTests \
+              -sdk iphonesimulator \
+              -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
+              -UseModernBuildSystem=NO \
+              build test | \
+            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_cocoapod_build/results.xml" && \
             exit "${PIPESTATUS[0]}"
 
       - run:
@@ -361,35 +384,35 @@ jobs:
             curl --silent 'http://localhost:8081/IntegrationTests/IntegrationTestsApp.bundle?platform=ios&dev=true' --output /dev/null
             curl --silent 'http://localhost:8081/IntegrationTests/RCTRootViewIntegrationTestApp.bundle?platform=ios&dev=true' --output /dev/null
 
-      - run:
-          name: Run RNTester Unit Tests
-          command: |
-            source ./scripts/.tests.env
-            xcodebuild \
-              -project RNTester/RNTester.xcodeproj \
-              -scheme RNTester \
-              -sdk iphonesimulator \
-              -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
-              -UseModernBuildSystem=NO \
-              -only-testing:RNTesterUnitTests \
-              build test | \
-            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_unit_tests/results.xml" && \
-            exit "${PIPESTATUS[0]}"
+      # - run:
+      #     name: Run RNTester Unit Tests
+      #     command: |
+      #       source ./scripts/.tests.env
+      #       xcodebuild \
+      #         -project RNTester/RNTester.xcodeproj \
+      #         -scheme RNTester \
+      #         -sdk iphonesimulator \
+      #         -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
+      #         -UseModernBuildSystem=NO \
+      #         -only-testing:RNTesterUnitTests \
+      #         build test | \
+      #       xcpretty --report junit --output "$REPORTS_DIR/junit/ios_unit_tests/results.xml" && \
+      #       exit "${PIPESTATUS[0]}"
 
-      - run:
-          name: Run RNTester Integration Tests
-          command: |
-            source ./scripts/.tests.env
-            xcodebuild \
-              -project RNTester/RNTester.xcodeproj \
-              -scheme RNTester \
-              -sdk iphonesimulator \
-              -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
-              -UseModernBuildSystem=NO \
-              -only-testing:RNTesterIntegrationTests \
-              build test | \
-            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_integration_tests/results.xml" && \
-            exit "${PIPESTATUS[0]}"
+      # - run:
+      #     name: Run RNTester Integration Tests
+      #     command: |
+      #       source ./scripts/.tests.env
+      #       xcodebuild \
+      #         -project RNTester/RNTester.xcodeproj \
+      #         -scheme RNTester \
+      #         -sdk iphonesimulator \
+      #         -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
+      #         -UseModernBuildSystem=NO \
+      #         -only-testing:RNTesterIntegrationTests \
+      #         build test | \
+      #       xcpretty --report junit --output "$REPORTS_DIR/junit/ios_integration_tests/results.xml" && \
+      #       exit "${PIPESTATUS[0]}"
 
       - run:
           name: Stop Metro packager and WebSocket test server
@@ -398,43 +421,6 @@ jobs:
             lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
             # kill whatever is occupying port 5555 (web socket server)
             lsof -i tcp:5555 | awk 'NR!=1 {print $2}' | xargs kill
-
-      - run:
-          name: Fetch CocoaPods Specs
-          command: |
-            curl https://cocoapods-specs.circleci.com/fetch-cocoapods-repo-from-s3.sh | bash -s cf
-
-      - run:
-          name: Generate RNTesterPods workspace using CocoaPods
-          command: cd RNTester && pod install
-
-      - run:
-          name: Build RNTesterPods
-          command: |
-            source ./scripts/.tests.env
-            xcodebuild \
-              -workspace RNTester/RNTesterPods.xcworkspace \
-              -scheme Pods-RNTester \
-              -sdk iphonesimulator \
-              -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
-              -UseModernBuildSystem=NO \
-              build | \
-            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_cocoapod_build/results.xml" && \
-            exit "${PIPESTATUS[0]}"
-
-      - run:
-          name: Test RNTesterPods
-          command: |
-            source ./scripts/.tests.env
-            xcodebuild \
-              -workspace RNTester/RNTesterPods.xcworkspace \
-              -scheme Pods-RNTesterUnitTests \
-              -sdk iphonesimulator \
-              -destination "platform=iOS Simulator,name=$IOS_DEVICE,OS=$IOS_TARGET_OS" \
-              -UseModernBuildSystem=NO \
-              build test | \
-            xcpretty --report junit --output "$REPORTS_DIR/junit/ios_cocoapod_build/results.xml" && \
-            exit "${PIPESTATUS[0]}"
 
       - store_test_results:
           path: ~/reports/junit
