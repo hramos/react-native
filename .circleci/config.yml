@@ -142,11 +142,6 @@ commands:
   # -------------------------
   #  COMMANDS: Disabled Tests
   # -------------------------
-  run_podspec_tests:
-    steps:
-      - run:
-          name: Test CocoaPods
-          command: ./scripts/process-podspecs.sh
   run_e2e_tests:
     steps:
       - run:
@@ -398,6 +393,10 @@ jobs:
             lsof -i tcp:8081 | awk 'NR!=1 {print $2}' | xargs kill
             # kill whatever is occupying port 5555 (web socket server)
             lsof -i tcp:5555 | awk 'NR!=1 {print $2}' | xargs kill
+
+      - run:
+          name: Process CocoaPods Podspecs
+          command: ./scripts/process-podspecs.sh
 
       - store_test_results:
           path: ~/reports/junit
