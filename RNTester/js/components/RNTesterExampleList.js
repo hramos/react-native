@@ -107,6 +107,10 @@ class RNTesterExampleList extends React.Component<Props, $FlowFixMeState> {
               automaticallyAdjustContentInsets={false}
               keyboardDismissMode="on-drag"
               renderSectionHeader={renderSectionHeader}
+              backgroundColor={Platform.select({
+                ios: 'transparent',
+                default: undefined,
+              })}
             />
           )}
         />
@@ -164,35 +168,76 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   list: {
-    backgroundColor: '#eeeeee',
+    ...Platform.select({
+      ios: {
+        backgroundColor: {semantic: 'systemBackgroundColor'},
+      },
+      default: {
+        backgroundColor: '#eeeeee',
+      },
+    }),
   },
   sectionHeader: {
-    backgroundColor: '#eeeeee',
+    ...Platform.select({
+      ios: {
+        backgroundColor: {
+          semantic: 'systemGroupedBackgroundColor',
+        },
+        color: {semantic: 'secondaryLabelColor'},
+      },
+      default: {
+        backgroundColor: '#eeeeee',
+        color: 'black',
+      },
+    }),
     padding: 5,
     fontWeight: '500',
     fontSize: 11,
   },
   row: {
-    backgroundColor: 'white',
+    ...Platform.select({
+      ios: {
+        backgroundColor: {semantic: 'secondarySystemGroupedBackgroundColor'},
+      },
+      default: {
+        backgroundColor: 'white',
+      },
+    }),
     justifyContent: 'center',
     paddingHorizontal: 15,
     paddingVertical: 8,
   },
   separator: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#bbbbbb',
+    ...Platform.select({
+      ios: {
+        backgroundColor: {semantic: 'separatorColor'},
+      },
+      default: {
+        backgroundColor: '#bbbbbb',
+      },
+    }),
     marginLeft: 15,
   },
   separatorHighlighted: {
     height: StyleSheet.hairlineWidth,
     backgroundColor: 'rgb(217, 217, 217)',
   },
-  sectionListContentContainer: {
-    backgroundColor: 'white',
-  },
+  sectionListContentContainer: Platform.select({
+    ios: {backgroundColor: {semantic: 'separatorColor'}},
+    default: {backgroundColor: 'white'},
+  }),
   rowTitleText: {
     fontSize: 17,
     fontWeight: '500',
+    ...Platform.select({
+      ios: {
+        color: {semantic: 'labelColor'},
+      },
+      default: {
+        color: 'black',
+      },
+    }),
   },
   rowDetailText: {
     fontSize: 15,

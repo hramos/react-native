@@ -141,8 +141,8 @@ class RNTesterApp extends React.Component<Props, RNTesterNavigationState> {
 const styles = StyleSheet.create({
   headerContainer: {
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#96969A',
-    backgroundColor: '#F5F5F6',
+    borderBottomColor: {semantic: 'separatorColor'},
+    backgroundColor: {semantic: 'tertiarySystemBackgroundColor'},
   },
   header: {
     height: 40,
@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
     fontSize: 19,
     fontWeight: '600',
     textAlign: 'center',
+    color: {dynamic: {light: 'black', dark: 'white'}},
   },
   exampleContainer: {
     flex: 1,

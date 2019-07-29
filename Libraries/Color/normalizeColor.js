@@ -11,7 +11,19 @@
 /* eslint no-bitwise: 0 */
 'use strict';
 
-function normalizeColor(color: string | number): ?number {
+const Platform = require('../Utilities/Platform');
+
+export type SemanticOrDynamicColorType = {
+  semantic?: string,
+  dynamic?: {
+    light: ?(string | number | SemanticOrDynamicColorType),
+    dark: ?(string | number | SemanticOrDynamicColorType),
+  },
+};
+
+function normalizeColor(
+  color: ?(string | number | SemanticOrDynamicColorType),
+): ?(number | SemanticOrDynamicColorType) {
   const matchers = getMatchers();
   let match;
 
@@ -19,6 +31,26 @@ function normalizeColor(color: string | number): ?number {
     if (color >>> 0 === color && color >= 0 && color <= 0xffffffff) {
       return color;
     }
+    return null;
+  }
+
+  if (typeof color === 'object' && color !== null && Platform.OS === 'ios') {
+    if ('semantic' in color) {
+      // a semantic color
+      return color;
+    } else if ('dynamic' in color && color.dynamic !== undefined) {
+      // a dynamic, appearance aware color
+      const dynamic = color.dynamic;
+      const dynamicColor: SemanticOrDynamicColorType = {
+        dynamic: {
+          light: normalizeColor(dynamic.light),
+          dark: normalizeColor(dynamic.dark),
+        },
+      };
+      return dynamicColor;
+    }
+  }
+  if (typeof color !== 'string') {
     return null;
   }
 

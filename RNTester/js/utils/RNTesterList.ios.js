@@ -14,6 +14,11 @@ import type {RNTesterExample} from '../types/RNTesterTypes';
 
 const ComponentExamples: Array<RNTesterExample> = [
   {
+    key: 'DarkModeExample',
+    module: require('../examples/DarkModeExample'),
+    supportsTVOS: true,
+  },
+  {
     key: 'ActivityIndicatorExample',
     module: require('../examples/ActivityIndicator/ActivityIndicatorExample'),
     supportsTVOS: true,

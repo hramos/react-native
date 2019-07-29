@@ -1,0 +1,1 @@
+../../../../../../React/Views/RCTModalManager.h

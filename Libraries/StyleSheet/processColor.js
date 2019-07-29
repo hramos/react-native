@@ -13,9 +13,12 @@
 const Platform = require('../Utilities/Platform');
 
 const normalizeColor = require('../Color/normalizeColor');
+import type {SemanticOrDynamicColorType} from '../Color/normalizeColor';
 
 /* eslint no-bitwise: 0 */
-function processColor(color?: ?(string | number)): ?number {
+function processColor(
+  color?: ?(string | number | SemanticOrDynamicColorType),
+): ?(number | SemanticOrDynamicColorType) {
   if (color === undefined || color === null) {
     return color;
   }
@@ -23,6 +26,23 @@ function processColor(color?: ?(string | number)): ?number {
   let int32Color = normalizeColor(color);
   if (int32Color === null || int32Color === undefined) {
     return undefined;
+  }
+
+  if (typeof int32Color === 'object' && Platform.OS === 'ios') {
+    if ('dynamic' in int32Color && int32Color.dynamic !== undefined) {
+      const dynamic = int32Color.dynamic;
+      const dynamicColor = {
+        dynamic: {
+          light: processColor(dynamic.light),
+          dark: processColor(dynamic.dark),
+        },
+      };
+      return dynamicColor;
+    }
+    return int32Color;
+  }
+  if (typeof int32Color !== 'number') {
+    return null;
   }
 
   // Converts 0xrrggbbaa into 0xaarrggbb

@@ -11,7 +11,7 @@
 'use strict';
 
 const React = require('react');
-const {StyleSheet, TextInput, View} = require('react-native');
+const {Platform, StyleSheet, TextInput, View} = require('react-native');
 
 type Props = {
   filter: Function,
@@ -72,6 +72,10 @@ class RNTesterExampleFilter extends React.Component<Props, State> {
             this.setState(() => ({filter: text}));
           }}
           placeholder="Search..."
+          placeholderTextColor={Platform.select({
+            ios: {semantic: 'placeholderTextColor'},
+            default: undefined,
+          })}
           underlineColorAndroid="transparent"
           style={styles.searchTextInput}
           testID={this.props.testID}
@@ -84,12 +88,28 @@ class RNTesterExampleFilter extends React.Component<Props, State> {
 
 const styles = StyleSheet.create({
   searchRow: {
-    backgroundColor: '#eeeeee',
+    ...Platform.select({
+      ios: {
+        backgroundColor: {semantic: 'systemGroupedBackgroundColor'},
+      },
+      default: {
+        backgroundColor: '#eeeeee',
+      },
+    }),
     padding: 10,
   },
   searchTextInput: {
-    backgroundColor: 'white',
-    borderColor: '#cccccc',
+    ...Platform.select({
+      ios: {
+        color: {semantic: 'labelColor'},
+        backgroundColor: {semantic: 'secondarySystemGroupedBackgroundColor'},
+        borderColor: {semantic: 'quaternaryLabelColor'},
+      },
+      default: {
+        backgroundColor: 'white',
+        borderColor: '#cccccc',
+      },
+    }),
     borderRadius: 3,
     borderWidth: 1,
     paddingLeft: 8,

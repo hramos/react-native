@@ -1,0 +1,1 @@
+../../../../../../React/Modules/RCTEventEmitter.h

@@ -1,0 +1,1 @@
+../../../../../../Libraries/NativeAnimation/RCTNativeAnimatedNodesManager.h

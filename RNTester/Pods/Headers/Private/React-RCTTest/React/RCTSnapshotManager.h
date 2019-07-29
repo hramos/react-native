@@ -1,0 +1,1 @@
+../../../../../RCTTest/RCTSnapshotManager.h

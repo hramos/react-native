@@ -1,0 +1,1 @@
+../../../../../../Libraries/Image/RCTImageEditingManager.h

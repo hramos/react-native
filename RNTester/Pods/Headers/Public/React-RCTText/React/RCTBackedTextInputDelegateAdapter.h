@@ -1,0 +1,1 @@
+../../../../../../Libraries/Text/TextInput/RCTBackedTextInputDelegateAdapter.h
